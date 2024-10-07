@@ -1,0 +1,18 @@
+[
+  {
+    "name": "Astrologer A",
+    "specialty": "Vedic Astrology",
+    "rating": 4.5,
+    "reviews": 120,
+    "description": "Expert in love and career counseling.",
+    "photo": "logo"
+  },
+  {
+    "name": "Astrologer B",
+    "specialty": "Palmistry",
+    "rating": 4.8,
+    "reviews": 95,
+    "description": "Renowned expert in palm reading.",
+    "photo": "logo"
+  }
+]

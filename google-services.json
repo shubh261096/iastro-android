@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "283164128552",
+    "project_id": "iastro-46d1b",
+    "storage_bucket": "iastro-46d1b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:283164128552:android:ce57f68db982f8f9ea8c1d",
+        "android_client_info": {
+          "package_name": "com.iffelse.iastro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFKC46w4l3QQ1Hux5B1HBQQveJ8h4VbVk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
