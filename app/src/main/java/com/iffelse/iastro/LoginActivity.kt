@@ -44,6 +44,11 @@ class LoginActivity : AppCompatActivity() {
 
         // Handle Send OTP Button Click
         binding.btnSendOtp.setOnClickListener {
+            if (binding.etMobileNumber.text.toString().trim().isEmpty()) {
+                Toast.makeText(this@LoginActivity, "Please enter phone number", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
             // Play fade-out animation and hide login section
             val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
             binding.layoutLogin.startAnimation(fadeOut)
@@ -98,6 +103,11 @@ class LoginActivity : AppCompatActivity() {
 
         // Handle Verify OTP Button Click (Add logic here)
         binding.btnVerifyOtp.setOnClickListener {
+            if (binding.etOtp.text.toString().trim().isEmpty()) {
+                Toast.makeText(this@LoginActivity, "Please enter otp", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
             if (binding.etOtp.text.toString().trim() == otp.toString()) {
                 Toast.makeText(this@LoginActivity, "Otp Verified", Toast.LENGTH_SHORT).show()
 
