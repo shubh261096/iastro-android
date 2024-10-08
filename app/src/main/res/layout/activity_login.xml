@@ -1,118 +1,174 @@
 <layout>
+
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/splash_background"
-        android:padding="16dp">
+        android:background="@color/white">
 
         <!-- Login Section (Mobile Number) -->
-        <LinearLayout
-            android:id="@+id/layout_login"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:orientation="vertical"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_layout_login"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/iv_logo"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_gravity="center"
-                android:contentDescription="Logo"
-                android:src="@drawable/logo" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/ll_logo"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@drawable/astrology_background"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/iv_logo"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/logo"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/header"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:gravity="center"
+                    android:text="Leading Online Astrology App"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    app:layout_constraintEnd_toEndOf="@id/iv_logo"
+                    app:layout_constraintStart_toStartOf="@id/iv_logo"
+                    app:layout_constraintTop_toBottomOf="@+id/iv_logo" />
+
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/textview_background"
+                    android:fontFamily="@font/poppins_regular"
+                    android:gravity="center"
+                    android:text="First Consultation is FREE!"
+                    android:textColor="@color/black"
+                    android:textSize="14sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/header"
+                    app:layout_constraintStart_toStartOf="@id/header"
+                    app:layout_constraintTop_toBottomOf="@+id/header" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:id="@+id/tv_login_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/philosopher_regular"
+                android:fontFamily="@font/poppins_regular"
                 android:gravity="center"
-                android:text="Login with Mobile"
-                android:textColor="@color/white"
-                android:textSize="24sp" />
+                android:text="Login to get started!"
+                android:textColor="@color/gray"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="@id/ll_logo"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ll_logo" />
 
-            <EditText
-                android:id="@+id/et_mobile_number"
+            <LinearLayout
+                android:id="@+id/layout_otp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/edit_text_background"
-                android:fontFamily="@font/philosopher_regular"
-                android:hint="Enter Mobile Number"
-                android:inputType="phone"
-                android:maxLength="10"
-                android:padding="12dp"
-                android:textColor="@color/black"
-                android:textColorHint="@color/black" />
+                android:layout_marginHorizontal="16dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_login_header">
 
-            <Button
-                android:id="@+id/btn_send_otp"
+                <EditText
+                    android:id="@+id/et_otp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/edit_text_background"
+                    android:fontFamily="@font/poppins_regular"
+                    android:hint="Enter OTP"
+                    android:inputType="number"
+                    android:maxLength="6"
+                    android:padding="12dp"
+                    android:textColor="@color/gray"
+                    android:textColorHint="@color/gray"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_verify_otp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/button_background"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="Verify OTP"
+                    android:textColor="@color/white" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_login"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/button_background"
-                android:fontFamily="@font/philosopher_regular"
-                android:text="Send OTP"
-                android:textColor="@color/white" />
-        </LinearLayout>
+                android:layout_marginHorizontal="16dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="visible"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_login_header">
+
+                <EditText
+                    android:id="@+id/et_mobile_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/edit_text_background"
+                    android:fontFamily="@font/poppins_regular"
+                    android:hint="Enter Mobile Number"
+                    android:inputType="phone"
+                    android:maxLength="10"
+                    android:padding="12dp"
+                    android:textColor="@color/black"
+                    android:textColorHint="@color/gray"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_send_otp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/button_background"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="Send OTP"
+                    android:textColor="@color/white" />
+            </LinearLayout>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- OTP Section -->
-        <LinearLayout
-            android:id="@+id/layout_otp"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/tv_otp_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/philosopher_regular"
-                android:gravity="center"
-                android:text="Enter OTP"
-                android:textColor="@color/white"
-                android:textSize="24sp" />
-
-            <EditText
-                android:id="@+id/et_otp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/edit_text_background"
-                android:fontFamily="@font/philosopher_regular"
-                android:hint="Enter OTP"
-                android:inputType="number"
-                android:maxLength="6"
-                android:padding="12dp"
-                android:textColor="@color/black"
-                android:textColorHint="@color/black" />
-
-            <Button
-                android:id="@+id/btn_verify_otp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="24dp"
-                android:background="@drawable/button_background"
-                android:fontFamily="@font/philosopher_regular"
-                android:text="Verify OTP"
-                android:textColor="@color/white" />
-        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

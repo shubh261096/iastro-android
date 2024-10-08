@@ -5,13 +5,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:background="?attr/selectableItemBackground"
+        android:background="@color/white"
         android:elevation="4dp"
         app:cardCornerRadius="8dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/white"
             android:padding="16dp">
 
             <!-- Photo of the Astrologer -->
@@ -26,11 +27,11 @@
                 android:src="@drawable/logo" />
 
             <TextView
-                android:layout_marginTop="16dp"
                 android:id="@+id/astrologer_rate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/astrologer_photo"
+                android:layout_marginTop="16dp"
                 android:fontFamily="@font/philosopher_regular"
                 android:text="₹ 18/min"
                 android:textColor="#F48534"

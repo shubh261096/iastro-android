@@ -27,26 +27,34 @@ class SplashActivity : AppCompatActivity() {
         val bounceAnimation = AnimationUtils.loadAnimation(this, R.anim.fade_in)
         logo.startAnimation(bounceAnimation)
 
-        if (KeyStorePref.getBoolean("isLogin"))
-        // Stay on the splash screen for 3 seconds before transitioning to the next screen
-            if (!TextUtils.isEmpty(KeyStorePref.getString("name"))) {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    val intent = Intent(this, HomeActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                }, 0) // 3 seconds
-            } else {
-                val intent = Intent(this, ProfileActivity::class.java)
-                startActivity(intent)
-                finish()
+        if (KeyStorePref.getBoolean("isLogin")) {
+            // Stay on the splash screen for 3 seconds before transitioning to the next screen
+            val firebaseHelper = FirebaseHelper()
+            firebaseHelper.checkIfUserExists(KeyStorePref.getString("userId")!!) { isUser, dataSnapShot ->
+                if (isUser) {
+                    firebaseHelper.checkIfNameExists(KeyStorePref.getString("userId")!!) { hasName, dataSnapShot ->
+                        if (hasName) {
+                            // Stay on the splash screen for 3 seconds before transitioning to the next screen
+                            Handler(Looper.getMainLooper()).postDelayed({
+                                val intent = Intent(this, HomeActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }, 0) // 3 seconds
+                        } else {
+                            val intent = Intent(this, ProfileActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
+                    }
+                }
             }
-        else {
+        } else {
             // Stay on the splash screen for 3 seconds before transitioning to the next screen
             Handler(Looper.getMainLooper()).postDelayed({
                 val intent = Intent(this, LoginActivity::class.java)
                 startActivity(intent)
                 finish()
-            }, 0) // 3 seconds
+            }, 3000) // 3 seconds
         }
     }
 }

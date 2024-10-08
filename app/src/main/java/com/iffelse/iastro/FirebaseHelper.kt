@@ -67,6 +67,28 @@ class FirebaseHelper {
             }
         })
     }
+
+    fun checkIfUserExists(userId: String, onResult: (Boolean, DataSnapshot?) -> Unit) {
+        val database = usersRef.child(userId)
+
+        // Attach a listener to read the data at the userId node
+        database.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    onResult(true, dataSnapshot)
+                } else {
+                    // User ID does not exist in the database
+                    onResult(false, null)
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                // Failed to read the database
+                onResult(false, null)
+            }
+        })
+    }
+
 }
 
 // Define your form data model

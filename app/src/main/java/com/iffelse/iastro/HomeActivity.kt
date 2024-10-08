@@ -23,6 +23,8 @@ class HomeActivity : AppCompatActivity() {
         firebaseHelper.checkIfNameExists(KeyStorePref.getString("userId")!!) { hasName, dataSnapShot ->
             if (hasName) {
                 val name = dataSnapShot!!.child("name").getValue(String::class.java)
+
+                setSupportActionBar(binding.toolbar)
                 // Change the ActionBar title
                 supportActionBar?.title =
                     "Hello ${name!!.split(" ").firstOrNull() ?: ""}"

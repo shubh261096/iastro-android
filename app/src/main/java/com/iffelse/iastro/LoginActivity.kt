@@ -103,22 +103,36 @@ class LoginActivity : AppCompatActivity() {
 
                 val userId = binding.etMobileNumber.text.toString()
                     .trim() // Replace with actual phone number or user ID
-                firebaseHelper.checkIfNameExists(userId) { hasName, dataSnapShot ->
-                    if (hasName) {
-                        KeyStorePref.putString("userId", userId)
-                        KeyStorePref.putBoolean("isLogin", true)
-                        // Stay on the splash screen for 3 seconds before transitioning to the next screen
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            val intent = Intent(this, HomeActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                        }, 0) // 3 seconds
+                firebaseHelper.checkIfUserExists(userId) { isUser, dataSnapShot ->
+                    KeyStorePref.putString("userId", userId)
+                    KeyStorePref.putBoolean("isLogin", true)
+                    if (isUser) {
+                        firebaseHelper.checkIfNameExists(userId) { hasName, dataSnapShot ->
+                            if (hasName) {
+                                val intent = Intent(this, HomeActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            } else {
+                                val intent = Intent(this, ProfileActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                        }
                     } else {
+                        firebaseHelper.saveUserProfile(
+                            KeyStorePref.getString("userId")!!,
+                            UserProfile(
+                                phoneNumber = KeyStorePref.getString("userId")!!,
+                                "", "", "", "", ""
+                            )
+                        )
                         val intent = Intent(this, ProfileActivity::class.java)
                         startActivity(intent)
                         finish()
                     }
+
                 }
+
 
             } else {
                 Toast.makeText(this@LoginActivity, "Otp Not Verified", Toast.LENGTH_SHORT).show()
