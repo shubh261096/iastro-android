@@ -11,7 +11,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.iffelse.iastro.databinding.DialogFormBinding
 import com.iffelse.iastro.model.Astrologer
+import com.iffelse.iastro.model.BaseErrorModel
+import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
+import org.json.JSONObject
 
 class FormDialogFragment(private val context: Context, private val astrologer: Astrologer) :
     DialogFragment() {
@@ -29,11 +32,23 @@ class FormDialogFragment(private val context: Context, private val astrologer: A
         // Get the references to form elements
 
         val firebaseHelper = FirebaseHelper()
+        val jsonObject = JSONObject()
 
         firebaseHelper.checkIfNameExists(KeyStorePref.getString("userId")!!) { hasName, dataSnapShot ->
             if (hasName) {
                 val name = dataSnapShot!!.child("name").getValue(String::class.java)
+                val dob = dataSnapShot.child("dob").getValue(String::class.java)
+                val gender = dataSnapShot.child("gender").getValue(String::class.java)
+                val placeOfBirth = dataSnapShot.child("placeOfBirth").getValue(String::class.java)
+                val timeOfBirth = dataSnapShot.child("time").getValue(String::class.java)
+
+                jsonObject.put("dob", dob)
+                jsonObject.put("gender", gender)
+                jsonObject.put("placeOfBirth", placeOfBirth)
+                jsonObject.put("time", timeOfBirth)
+
                 dialogFormBinding.etName.setText(name)
+
             }
         }
         // Submit button logic
@@ -46,6 +61,30 @@ class FormDialogFragment(private val context: Context, private val astrologer: A
                 name = dialogFormBinding.etName.text.toString().trim(),
                 astrologerName = astrologer.name,
                 message = dialogFormBinding.etMessage.text.toString().trim()
+            )
+
+            val url = "https://www.apsdeoria.com/apszone/api/v2/qa/test/vendor/sendEmail"
+
+            // Adding body
+            jsonObject.put("name", dialogFormBinding.etName.text.toString().trim())
+            jsonObject.put("phoneNumber", KeyStorePref.getString("userId"))
+            jsonObject.put("astrologerName", astrologer.name)
+            jsonObject.put("message", dialogFormBinding.etMessage.text.toString().trim())
+            OkHttpNetworkProvider.post(
+                url,
+                jsonObject,
+                mutableMapOf(),
+                null,
+                null,
+                responseType = JSONObject::class.java,
+                object : OkHttpNetworkProvider.NetworkListener<JSONObject> {
+                    override fun onResponse(response: JSONObject?) {
+                    }
+
+                    override fun onError(error: BaseErrorModel?) {
+
+                    }
+                }
             )
 
             // Save the form data
