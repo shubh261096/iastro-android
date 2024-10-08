@@ -38,38 +38,27 @@
                 android:background="@drawable/edit_text_background"
                 android:hint="Enter Name"
                 android:inputType="text"
+                android:padding="12dp"
                 android:textColorHint="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvFormTitle" />
 
             <EditText
-                android:id="@+id/etEmail"
+                android:id="@+id/etMessage"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/edit_text_background"
-                android:hint="Enter Email"
-                android:inputType="textEmailAddress"
+                android:gravity="start"
+                android:hint="Enter Message"
+                android:inputType="textMultiLine"
+                android:minHeight="100dp"
+                android:padding="12dp"
                 android:textColorHint="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/etName" />
-
-            <EditText
-                android:id="@+id/etMessage"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/edit_text_background"
-                android:gravity="start"
-                android:hint="Enter Message"
-                android:inputType="text"
-                android:minHeight="100dp"
-                android:textColorHint="@color/black"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etEmail" />
 
             <Button
                 android:id="@+id/btnSubmit"

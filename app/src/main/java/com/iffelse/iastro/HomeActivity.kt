@@ -18,18 +18,22 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val firebaseHelper = FirebaseHelper()
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.title =
+            "Chat with Astrologer"
 
-        firebaseHelper.checkIfNameExists(KeyStorePref.getString("userId")!!) { hasName, dataSnapShot ->
-            if (hasName) {
-                val name = dataSnapShot!!.child("name").getValue(String::class.java)
-
-                setSupportActionBar(binding.toolbar)
-                // Change the ActionBar title
-                supportActionBar?.title =
-                    "Hello ${name!!.split(" ").firstOrNull() ?: ""}"
-            }
-        }
+//        val firebaseHelper = FirebaseHelper()
+//
+//        firebaseHelper.checkIfNameExists(KeyStorePref.getString("userId")!!) { hasName, dataSnapShot ->
+//            if (hasName) {
+//                val name = dataSnapShot!!.child("name").getValue(String::class.java)
+//
+//                setSupportActionBar(binding.toolbar)
+//                // Change the ActionBar title
+//                supportActionBar?.title =
+//                    "Hello ${name!!.split(" ").firstOrNull() ?: ""}"
+//            }
+//        }
 
         // Bottom Navigation Item Selection
 

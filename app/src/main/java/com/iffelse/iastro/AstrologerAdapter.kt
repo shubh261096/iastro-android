@@ -42,6 +42,7 @@ class AstrologerAdapter(private val astrologers: List<Astrologer>, private val c
             binding.astrologerRating.text = astrologer.rating.toString()
             binding.astrologerReviews.text = "(${astrologer.reviews} reviews)"
             binding.astrologerDescription.text = astrologer.description
+            binding.astrologerRate.text = astrologer.rate
             // Convert image resource name to drawable resource ID and set it
             val imageResId = context.resources.getIdentifier(astrologer.photo, "drawable", context.packageName)
             binding.astrologerPhoto.setImageResource(imageResId)
@@ -51,12 +52,12 @@ class AstrologerAdapter(private val astrologers: List<Astrologer>, private val c
             // Call button click listener (can add functionality later)
             binding.callIcon.setOnClickListener {
                 // Handle the call action here
-                cLickListener.onClick()
+                cLickListener.onClick(adapterPosition)
             }
         }
     }
 
     interface CLickListener {
-        fun onClick()
+        fun onClick(position: Int)
     }
 }

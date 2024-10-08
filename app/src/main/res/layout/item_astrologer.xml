@@ -15,24 +15,28 @@
             android:background="@color/white"
             android:padding="16dp">
 
-            <!-- Photo of the Astrologer -->
             <ImageView
                 android:id="@+id/astrologer_photo"
                 android:layout_width="60dp"
                 android:layout_height="60dp"
-                android:layout_alignParentStart="true"
                 android:layout_marginEnd="16dp"
+                android:adjustViewBounds="true"
+                android:background="@drawable/circular_image_background"
+                android:clipToOutline="true"
                 android:contentDescription="Astrologer Photo"
                 android:scaleType="centerCrop"
-                android:src="@drawable/logo" />
+                android:src="@drawable/touch" />
 
             <TextView
                 android:id="@+id/astrologer_rate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/astrologer_photo"
+                android:layout_alignStart="@id/astrologer_photo"
+                android:layout_alignEnd="@id/astrologer_photo"
                 android:layout_marginTop="16dp"
                 android:fontFamily="@font/philosopher_regular"
+                android:gravity="center"
                 android:text="₹ 18/min"
                 android:textColor="#F48534"
                 android:textSize="14sp"
@@ -120,8 +124,8 @@
             <!-- Call Icon -->
             <ImageView
                 android:id="@+id/call_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="Call Icon"

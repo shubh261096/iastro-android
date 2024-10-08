@@ -10,6 +10,6 @@
         android:gravity="center"
         android:scaleType="centerCrop"
         android:text="Will my ex come back?"
-        android:textColor="@color/black" />
+        android:textColor="@color/orange" />
 
 </FrameLayout>

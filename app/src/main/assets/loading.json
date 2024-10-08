@@ -1,18 +1,38 @@
 [
   {
-    "name": "Astrologer A",
-    "specialty": "Vedic Astrology",
+    "name": "Kshippra S",
+    "specialty": "Numerology, Vedic Astrology",
     "rating": 4.5,
     "reviews": 120,
-    "description": "Expert in love and career counseling.",
-    "photo": "logo"
+    "description": "Expert in numerology",
+    "photo": "kshippra",
+    "rate": "₹ 15/min"
   },
   {
-    "name": "Astrologer B",
-    "specialty": "Palmistry",
+    "name": "Sweta",
+    "specialty": "Tarot Card, Vedic Astrology",
     "rating": 4.8,
     "reviews": 95,
-    "description": "Renowned expert in palm reading.",
-    "photo": "logo"
+    "description": "Renowned expert in tarot card reading.",
+    "photo": "touch",
+    "rate": "₹ 18/min"
+  },
+  {
+    "name": "Tanya S",
+    "specialty": "Tarot Card, Vedic Astrology, Numerology, Law of Attraction",
+    "rating": 4.75,
+    "reviews": 110,
+    "description": "Expert in the field of Vedic and career counselling.",
+    "photo": "tanya",
+    "rate": "₹ 12/min"
+  },
+  {
+    "name": "Deepak T",
+    "specialty": "Prashn Kundli, Vedic Astrology",
+    "rating": 4,
+    "reviews": 30,
+    "description": "Renowned expert in tarot card reading.",
+    "photo": "om",
+    "rate": "₹ 10/min"
   }
 ]

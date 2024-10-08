@@ -1,5 +1,6 @@
 package com.iffelse.iastro
 
+import android.content.SyncRequest
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -94,8 +95,8 @@ class FirebaseHelper {
 // Define your form data model
 data class FormData(
     val name: String = "",
-    val email: String = "",
     val message: String = "",
+    val astrologerName : String = "",
     val timestamp: String = getFormattedTimestamp() // Add other fields
 )
 

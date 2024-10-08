@@ -1,5 +1,9 @@
 package com.iffelse.iastro.utils
 
+import android.content.Context
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat.getSystemService
 import java.util.Calendar
 import java.util.Date
 
@@ -26,5 +30,14 @@ object Utils {
             else -> "Unknown"
         }
     }
+
+    fun closeKeyboard(context: Context, view: View) {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        // Find the current focused view
+        view.let {
+            imm.hideSoftInputFromWindow(it.windowToken, 0)
+        }
+    }
+
 
 }

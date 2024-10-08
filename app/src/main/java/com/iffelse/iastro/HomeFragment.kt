@@ -14,6 +14,7 @@ import com.google.gson.reflect.TypeToken
 import com.iffelse.iastro.databinding.FragmentHomeBinding
 import com.iffelse.iastro.model.Astrologer
 import java.io.IOException
+import java.text.FieldPosition
 
 class HomeFragment : Fragment() {
 
@@ -26,7 +27,7 @@ class HomeFragment : Fragment() {
 
     private val bannerImages = listOf(
         "When will my ex come back?",
-        "What will I get married?",
+        "When will I get married?",
         "What is my lucky number?"
     )
 
@@ -91,8 +92,8 @@ class HomeFragment : Fragment() {
                 astrologers,
                 requireActivity(),
                 object : AstrologerAdapter.CLickListener {
-                    override fun onClick() {
-                        val dialog = FormDialogFragment(activity!!)
+                    override fun onClick(position: Int) {
+                        val dialog = FormDialogFragment(activity!!, astrologers[position])
                         dialog.show(activity!!.supportFragmentManager, "FormDialogFragment")
                     }
 

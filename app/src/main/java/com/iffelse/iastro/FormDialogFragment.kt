@@ -10,8 +10,11 @@ import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.iffelse.iastro.databinding.DialogFormBinding
+import com.iffelse.iastro.model.Astrologer
+import com.iffelse.iastro.utils.Utils
 
-class FormDialogFragment(private val context: Context) : DialogFragment() {
+class FormDialogFragment(private val context: Context, private val astrologer: Astrologer) :
+    DialogFragment() {
 
     private lateinit var dialogFormBinding: DialogFormBinding
 
@@ -24,16 +27,24 @@ class FormDialogFragment(private val context: Context) : DialogFragment() {
         builder.setView(dialogFormBinding.root)
 
         // Get the references to form elements
-//        val submitButton = view.findViewById<Button>(R.id.btnSubmit)
 
+        val firebaseHelper = FirebaseHelper()
+
+        firebaseHelper.checkIfNameExists(KeyStorePref.getString("userId")!!) { hasName, dataSnapShot ->
+            if (hasName) {
+                val name = dataSnapShot!!.child("name").getValue(String::class.java)
+                dialogFormBinding.etName.setText(name)
+            }
+        }
         // Submit button logic
         dialogFormBinding.btnSubmit.setOnClickListener {
 
-            val firebaseHelper = FirebaseHelper()
+            Utils.closeKeyboard(context, it)
+
             // Form submission data
             val formData = FormData(
                 name = dialogFormBinding.etName.text.toString().trim(),
-                email = dialogFormBinding.etEmail.text.toString().trim(),
+                astrologerName = astrologer.name,
                 message = dialogFormBinding.etMessage.text.toString().trim()
             )
 
