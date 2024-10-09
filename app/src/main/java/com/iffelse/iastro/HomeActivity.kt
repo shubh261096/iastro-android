@@ -22,25 +22,26 @@ class HomeActivity : AppCompatActivity(), HomeFragment.OnCardClickListener {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-//        setSupportActionBar(binding.toolbar)
-//        supportActionBar?.title =
-//            "Chat with Astrologer"
-
-//        val firebaseHelper = FirebaseHelper()
-//
-//        firebaseHelper.checkIfNameExists(KeyStorePref.getString("userId")!!) { hasName, dataSnapShot ->
-//            if (hasName) {
-//                val name = dataSnapShot!!.child("name").getValue(String::class.java)
-//
-//                setSupportActionBar(binding.toolbar)
-//                // Change the ActionBar title
-//                supportActionBar?.title =
-//                    "Hello ${name!!.split(" ").firstOrNull() ?: ""}"
-//            }
-//        }
-
-        // Bottom Navigation Item Selection
-
+        if (KeyStorePref.getBoolean("isLogin")) {
+            // Stay on the splash screen for 3 seconds before transitioning to the next screen
+            val firebaseHelper = FirebaseHelper()
+            firebaseHelper.checkIfUserExists(KeyStorePref.getString("userId")!!) { isUser, dataSnapShot ->
+                if (isUser) {
+                    firebaseHelper.checkIfNameExists(KeyStorePref.getString("userId")!!) { hasName, dataSnapShot ->
+                        if (!hasName) {
+                            val intent = Intent(this, ProfileActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
+                    }
+                }
+            }
+        } else {
+            // Stay on the splash screen for 3 seconds before transitioning to the next screen
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
         // Load the default fragment (HomeFragment) when the activity starts
         if (savedInstanceState == null) {
             loadFragment(HomeFragment())
@@ -48,6 +49,9 @@ class HomeActivity : AppCompatActivity(), HomeFragment.OnCardClickListener {
 
         // Set default selected item to Home
         binding.bottomNavigation.selectedItemId = R.id.nav_home
+        // Load rotate animation from XML and apply to the rotating image
+        val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_logo)
+        binding.toolbarImage.startAnimation(rotateAnimation)
 
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
