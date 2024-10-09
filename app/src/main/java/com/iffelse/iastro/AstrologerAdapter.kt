@@ -50,7 +50,7 @@ class AstrologerAdapter(private val astrologers: List<Astrologer>, private val c
             binding.executePendingBindings()
 
             // Call button click listener (can add functionality later)
-            binding.callIcon.setOnClickListener {
+            itemView.setOnClickListener {
                 // Handle the call action here
                 cLickListener.onClick(adapterPosition)
             }

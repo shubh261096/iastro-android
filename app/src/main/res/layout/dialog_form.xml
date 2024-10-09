@@ -45,6 +45,23 @@
                 app:layout_constraintTop_toBottomOf="@+id/tvFormTitle" />
 
             <EditText
+                android:id="@+id/etTimeToCall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/edit_text_background"
+                android:clickable="true"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="start"
+                android:hint="Time For Callback"
+                android:padding="12dp"
+                android:textColorHint="@color/black"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/etName" />
+
+            <EditText
                 android:id="@+id/etMessage"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -58,7 +75,7 @@
                 android:textColorHint="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/etName" />
+                app:layout_constraintTop_toBottomOf="@+id/etTimeToCall" />
 
             <Button
                 android:id="@+id/btnSubmit"

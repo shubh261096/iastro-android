@@ -30,6 +30,16 @@ class FormDialogFragment(private val context: Context, private val astrologer: A
         dialogFormBinding = DialogFormBinding.inflate(inflater)
         builder.setView(dialogFormBinding.root)
 
+        dialogFormBinding.etTimeToCall.setOnClickListener {
+            Utils.openTimePicker(context,
+                object : Utils.DateFormatResult {
+                    override fun onDateSelected(date: String) {
+                        dialogFormBinding.etTimeToCall.setText(date)
+                    }
+                })
+        }
+
+
         // Get the references to form elements
 
         val firebaseHelper = FirebaseHelper()
@@ -71,6 +81,7 @@ class FormDialogFragment(private val context: Context, private val astrologer: A
             jsonObject.put("phoneNumber", KeyStorePref.getString("userId"))
             jsonObject.put("astrologerName", formData.astrologerName)
             jsonObject.put("message", dialogFormBinding.etMessage.text.toString().trim())
+            jsonObject.put("timeToCall", dialogFormBinding.etTimeToCall.text.toString().trim())
             OkHttpNetworkProvider.post(
                 url,
                 jsonObject,
