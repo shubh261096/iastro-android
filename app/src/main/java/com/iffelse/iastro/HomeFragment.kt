@@ -75,7 +75,12 @@ class HomeFragment : Fragment() {
 
         // Setup ViewPager for Banner
 
-        val bannerAdapter = BannerAdapter(bannerImages)
+        val bannerAdapter = BannerAdapter(bannerImages, object : AstrologerAdapter.CLickListener {
+            override fun onClick(position: Int) {
+                val dialog = FormDialogFragment(activity!!, null)
+                dialog.show(activity!!.supportFragmentManager, "FormDialogFragment")
+            }
+        })
         binding.bannerViewpager.adapter = bannerAdapter
 
         // Start the auto-scrolling feature
@@ -107,7 +112,10 @@ class HomeFragment : Fragment() {
             currentPage = binding.bannerViewpager.currentItem
             val nextPage = (currentPage + 1) % bannerImages.size // Loop back to the first item
             binding.bannerViewpager.setCurrentItem(nextPage, true)
-            handler.postDelayed(runnable, 3000) // Adjust time interval as needed (e.g., 3000ms = 3s)
+            handler.postDelayed(
+                runnable,
+                3000
+            ) // Adjust time interval as needed (e.g., 3000ms = 3s)
         }
         handler.postDelayed(runnable, 3000) // Start the auto-scroll after 3 seconds
     }

@@ -2,6 +2,7 @@
 
 package com.iffelse.iastro.utils
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.iffelse.iastro.model.BaseErrorModel
@@ -192,10 +193,16 @@ object OkHttpNetworkProvider {
                 override fun onResponse(call: Call, response: Response) {
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string()
-                        if (responseType == JSONObject::class.java) {
-                            callback.onResponse(JSONObject(responseBody!!) as T?)
+                        if (responseBody.isNullOrEmpty()) {
+                            // Handle the empty or null response appropriately
+                            Log.e("API Error", "Received empty or null response")
+                            callback.onResponse(null) // Call the callback with null or an error response
                         } else {
-                            callback.onResponse(parseJson<T>(responseBody, responseType))
+                            if (responseType == JSONObject::class.java) {
+                                callback.onResponse(JSONObject(responseBody) as T?) // Safe cast to T
+                            } else {
+                                callback.onResponse(parseJson<T>(responseBody, responseType)) // Handle other types
+                            }
                         }
                     } else {
                         callback.onError(

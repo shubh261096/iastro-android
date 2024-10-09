@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
@@ -16,7 +17,7 @@ import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
 import org.json.JSONObject
 
-class FormDialogFragment(private val context: Context, private val astrologer: Astrologer) :
+class FormDialogFragment(private val context: Context, private val astrologer: Astrologer?) :
     DialogFragment() {
 
     private lateinit var dialogFormBinding: DialogFormBinding
@@ -59,7 +60,7 @@ class FormDialogFragment(private val context: Context, private val astrologer: A
             // Form submission data
             val formData = FormData(
                 name = dialogFormBinding.etName.text.toString().trim(),
-                astrologerName = astrologer.name,
+                astrologerName = astrologer?.name ?: "",
                 message = dialogFormBinding.etMessage.text.toString().trim()
             )
 
@@ -68,7 +69,7 @@ class FormDialogFragment(private val context: Context, private val astrologer: A
             // Adding body
             jsonObject.put("name", dialogFormBinding.etName.text.toString().trim())
             jsonObject.put("phoneNumber", KeyStorePref.getString("userId"))
-            jsonObject.put("astrologerName", astrologer.name)
+            jsonObject.put("astrologerName", formData.astrologerName)
             jsonObject.put("message", dialogFormBinding.etMessage.text.toString().trim())
             OkHttpNetworkProvider.post(
                 url,
@@ -79,6 +80,7 @@ class FormDialogFragment(private val context: Context, private val astrologer: A
                 responseType = JSONObject::class.java,
                 object : OkHttpNetworkProvider.NetworkListener<JSONObject> {
                     override fun onResponse(response: JSONObject?) {
+                        Log.i("TAG", "onResponse: ")
                     }
 
                     override fun onError(error: BaseErrorModel?) {

@@ -6,7 +6,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class BannerAdapter(private val imageList: List<String>) : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
+class BannerAdapter(
+    private val imageList: List<String>,
+    private val cLickListener: AstrologerAdapter.CLickListener
+) : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BannerViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_banner, parent, false)
@@ -22,6 +25,10 @@ class BannerAdapter(private val imageList: List<String>) : RecyclerView.Adapter<
     inner class BannerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(textMessage: String) {
             itemView.findViewById<TextView>(R.id.banner_image).text = textMessage
+            // Call button click listener (can add functionality later)
+            itemView.setOnClickListener {
+                cLickListener.onClick(adapterPosition)
+            }
         }
     }
 }
