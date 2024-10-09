@@ -24,15 +24,26 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var astrologerAdapter: AstrologerAdapter
 
-    private lateinit var handler: Handler
-    private lateinit var runnable: Runnable
-    private var currentPage = 0
+    // Define an interface
+    interface OnCardClickListener {
+        fun onCardClick(page: String)  // The activity will implement this
+    }
 
-    private val bannerImages = listOf(
-        "When will my ex come back?",
-        "When will I get married?",
-        "What is my lucky number?"
-    )
+    private var listener: OnCardClickListener? = null
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnCardClickListener) {
+            listener = context
+        } else {
+            throw RuntimeException("$context must implement OnCardClickListener")
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        listener = null  // Prevent memory leaks
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,38 +57,9 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-//        // Sample astrologer data (you can load from JSON or API later)
-//        val astrogers = assets.open("loading").read().toString()
-//        val astrologers = listOf(
-//            Astrologer(
-//                name = "Kshippra Sharma",
-//                specialty = "Vedic Astrology, Numerology",
-//                rating = 4.5,
-//                reviews = 120,
-//                description = "Expert in love and career counseling.",
-//                photo = R.drawable.logo // Replace with actual drawable
-//            ),
-//            Astrologer(
-//                name = "Astrologer B",
-//                specialty = "Palmistry",
-//                rating = 4.8,
-//                reviews = 95,
-//                description = "Renowned expert in palm reading.",
-//                photo = R.drawable.logo
-//            ),
-//            Astrologer(
-//                name = "Astrologer C",
-//                specialty = "Horoscope Reading",
-//                rating = 4.2,
-//                reviews = 150,
-//                description = "Experienced in providing accurate horoscopes.",
-//                photo = R.drawable.logo
-//            )
-//        )
-
         // Initialize Firebase Storage reference
-        val storageReference = FirebaseStorage.getInstance().reference.child("homepage_image.png")
+        val storageReferenceGif = FirebaseStorage.getInstance().reference.child("homepage.gif")
+            val storageReference = FirebaseStorage.getInstance().reference.child("homepage.png")
 
         // Get the URL for the image
         storageReference.downloadUrl.addOnSuccessListener { uri ->
@@ -88,20 +70,26 @@ class HomeFragment : Fragment() {
         }.addOnFailureListener { exception ->
             // Handle any errors
             Log.e("Firebase", "Error loading image: ", exception)
+            // Get the URL for the image
+            storageReferenceGif.downloadUrl.addOnSuccessListener { uri ->
+                // Use Glide to load the image into an ImageView
+                Glide.with(this@HomeFragment)
+                    .load(uri)
+                    .into(binding.imageView) // Replace 'binding.imageView' with your ImageView ID
+            }.addOnFailureListener { exception ->
+                // Handle any errors
+                Log.e("Firebase", "Error loading image: ", exception)
+            }
         }
 
-        // Setup ViewPager for Banner
 
-        val bannerAdapter = BannerAdapter(bannerImages, object : AstrologerAdapter.CLickListener {
-            override fun onClick(position: Int) {
-                val dialog = FormDialogFragment(activity!!, null)
-                dialog.show(activity!!.supportFragmentManager, "FormDialogFragment")
-            }
-        })
-        binding.bannerViewpager.adapter = bannerAdapter
+        binding.titleConsultNow.setOnClickListener {
+            listener?.onCardClick("call")
+        }
 
-        // Start the auto-scrolling feature
-        startAutoScroll()
+        binding.includeKundli.cardView1.setOnClickListener {
+            listener?.onCardClick("trending")  // Call the method in the activity
+        }
 
 
         binding.recyclerViewAstrologers.layoutManager = LinearLayoutManager(requireActivity())
@@ -123,23 +111,8 @@ class HomeFragment : Fragment() {
         binding.recyclerViewAstrologers.adapter = astrologerAdapter
     }
 
-    private fun startAutoScroll() {
-        handler = Handler(Looper.getMainLooper())
-        runnable = Runnable {
-            currentPage = binding.bannerViewpager.currentItem
-            val nextPage = (currentPage + 1) % bannerImages.size // Loop back to the first item
-            binding.bannerViewpager.setCurrentItem(nextPage, true)
-            handler.postDelayed(
-                runnable,
-                3000
-            ) // Adjust time interval as needed (e.g., 3000ms = 3s)
-        }
-        handler.postDelayed(runnable, 3000) // Start the auto-scroll after 3 seconds
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
-        handler.removeCallbacks(runnable) // Stop auto-scrolling when the view is destroyed
     }
 
 

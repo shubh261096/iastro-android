@@ -4,11 +4,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
+import android.view.View
+import android.view.animation.AnimationUtils
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.iffelse.iastro.databinding.ActivityHomeBinding
 
-class HomeActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity(), HomeFragment.OnCardClickListener {
 
     private lateinit var binding: ActivityHomeBinding
 
@@ -48,12 +52,28 @@ class HomeActivity : AppCompatActivity() {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
+                    binding.toolbarTitle.text = "iastro"
+                    binding.toolbarImage.visibility = View.VISIBLE
+                    // Load rotate animation from XML and apply to the rotating image
+                    val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_logo)
+                    binding.toolbarImage.startAnimation(rotateAnimation)
                     loadFragment(HomeFragment())
                     true
                 }
 
                 R.id.nav_trending -> {
+                    binding.toolbarTitle.text = "Trending"
+                    binding.toolbarImage.clearAnimation()
+                    binding.toolbarImage.visibility = View.GONE
                     loadFragment(TrendingFragment())
+                    true
+                }
+
+                R.id.nav_call -> {
+                    binding.toolbarTitle.text = "Call with Astrologer"
+                    binding.toolbarImage.clearAnimation()
+                    binding.toolbarImage.visibility = View.GONE
+                    loadFragment(CallFragment())
                     true
                 }
 
@@ -69,5 +89,11 @@ class HomeActivity : AppCompatActivity() {
             .commit()
     }
 
+    override fun onCardClick(page: String) {
+        if (page == "trending")
+            binding.bottomNavigation.selectedItemId = R.id.nav_trending
+        else if (page == "call")
+            binding.bottomNavigation.selectedItemId = R.id.nav_call
+    }
 
 }

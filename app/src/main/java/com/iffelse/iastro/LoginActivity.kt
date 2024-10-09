@@ -41,6 +41,10 @@ class LoginActivity : AppCompatActivity() {
 
         KeyStorePref.initialize(applicationContext)
 
+        // Load rotate animation from XML and apply to the rotating image
+        val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_logo)
+        binding.ivLogo.startAnimation(rotateAnimation)
+
 
         // Handle Send OTP Button Click
         binding.btnSendOtp.setOnClickListener {
@@ -78,7 +82,7 @@ class LoginActivity : AppCompatActivity() {
             headers.put("Content-Type", "application/json")
             headers.put("Authorization", getBasicAuthHeader("spiraeaotp.trans", "J5ykn"))
             Log.i("TAG", "onCreate: $otp")
-            val url = "https://sms.timesapi.in"
+            val url = "https://sms.timesapi.in/api/v1/message"
 
             lifecycleScope.launch(Dispatchers.IO) {
                 OkHttpNetworkProvider.post(url,

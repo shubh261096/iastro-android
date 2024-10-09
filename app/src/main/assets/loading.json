@@ -1,5 +1,14 @@
 [
   {
+    "name": "Deepak T",
+    "specialty": "Prashn Kundli, Vedic Astrology",
+    "rating": 4,
+    "reviews": 30,
+    "description": "Renowned expert in tarot card reading.",
+    "photo": "deepak",
+    "rate": "₹ 10/min"
+  },
+  {
     "name": "Kshippra S",
     "specialty": "Numerology, Vedic Astrology",
     "rating": 4.5,
@@ -25,14 +34,5 @@
     "description": "Expert in the field of Vedic and career counselling.",
     "photo": "tanya",
     "rate": "₹ 12/min"
-  },
-  {
-    "name": "Deepak T",
-    "specialty": "Prashn Kundli, Vedic Astrology",
-    "rating": 4,
-    "reviews": 30,
-    "description": "Renowned expert in tarot card reading.",
-    "photo": "deepak",
-    "rate": "₹ 10/min"
   }
 ]

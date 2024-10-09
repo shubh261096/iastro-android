@@ -19,13 +19,16 @@
             app:titleTextColor="@color/black">
 
             <ImageView
+                android:id="@+id/toolbar_image"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginEnd="8dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/logo" />
+                android:src="@drawable/logo"
+                android:visibility="visible" />
 
             <TextView
+                android:id="@+id/toolbar_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
@@ -55,6 +58,21 @@
             app:itemTextColor="@color/bottom_nav_item_color"
             app:layout_constraintBottom_toBottomOf="parent"
             app:menu="@menu/bottom_navigation_menu" />
+
+        <!-- Floating ImageView on top of Bottom Navigation -->
+        <ImageView
+            android:id="@+id/floating_image"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="-24dp"
+            android:layout_marginEnd="32dp"
+            android:background="@drawable/new_icon"
+            android:elevation="10dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/logo"
+            app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+            app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

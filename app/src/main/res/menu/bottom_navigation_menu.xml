@@ -3,6 +3,12 @@
         android:id="@+id/nav_home"
         android:icon="@drawable/home"
         android:title="Home" />
+
+    <item
+        android:id="@+id/nav_call"
+        android:icon="@drawable/phone"
+        android:title="Call" />
+
     <item
         android:id="@+id/nav_trending"
         android:icon="@drawable/trending"
