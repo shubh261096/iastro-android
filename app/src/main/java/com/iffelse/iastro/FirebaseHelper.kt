@@ -97,7 +97,8 @@ data class FormData(
     val name: String = "",
     val message: String = "",
     val astrologerName : String = "",
-    val timestamp: String = getFormattedTimestamp() // Add other fields
+    val timestamp: String = getFormattedTimestamp(), // Add other fields
+    val timeToCall: String = "" // Add other fields
 )
 
 fun getFormattedTimestamp(): String {

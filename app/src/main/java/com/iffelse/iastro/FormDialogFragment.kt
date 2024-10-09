@@ -71,7 +71,8 @@ class FormDialogFragment(private val context: Context, private val astrologer: A
             val formData = FormData(
                 name = dialogFormBinding.etName.text.toString().trim(),
                 astrologerName = astrologer?.name ?: "",
-                message = dialogFormBinding.etMessage.text.toString().trim()
+                message = dialogFormBinding.etMessage.text.toString().trim(),
+                timeToCall = dialogFormBinding.etTimeToCall.text.toString().trim()
             )
 
             val url = "https://www.apsdeoria.com/apszone/api/v2/qa/test/vendor/sendEmail"

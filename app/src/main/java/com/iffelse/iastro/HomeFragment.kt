@@ -59,12 +59,12 @@ class HomeFragment : Fragment() {
 
         // Initialize Firebase Storage reference
         val storageReferenceGif = FirebaseStorage.getInstance().reference.child("homepage.gif")
-            val storageReference = FirebaseStorage.getInstance().reference.child("homepage.png")
+        val storageReference = FirebaseStorage.getInstance().reference.child("homepage.png")
 
         // Get the URL for the image
         storageReference.downloadUrl.addOnSuccessListener { uri ->
             // Use Glide to load the image into an ImageView
-            Glide.with(this@HomeFragment)
+            Glide.with(requireContext())
                 .load(uri)
                 .into(binding.imageView) // Replace 'binding.imageView' with your ImageView ID
         }.addOnFailureListener { exception ->
@@ -73,7 +73,7 @@ class HomeFragment : Fragment() {
             // Get the URL for the image
             storageReferenceGif.downloadUrl.addOnSuccessListener { uri ->
                 // Use Glide to load the image into an ImageView
-                Glide.with(this@HomeFragment)
+                Glide.with(requireContext())
                     .load(uri)
                     .into(binding.imageView) // Replace 'binding.imageView' with your ImageView ID
             }.addOnFailureListener { exception ->
