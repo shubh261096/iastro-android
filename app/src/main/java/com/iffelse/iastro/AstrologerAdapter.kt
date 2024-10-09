@@ -1,15 +1,22 @@
 package com.iffelse.iastro
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
 import com.iffelse.iastro.databinding.ItemAstrologerBinding
 import com.iffelse.iastro.model.Astrologer
 
-class AstrologerAdapter(private val astrologers: List<Astrologer>, private val context: Context, val cLickListener: CLickListener) :
+class AstrologerAdapter(
+    private val astrologers: List<Astrologer>,
+    private val context: Context,
+    val cLickListener: CLickListener
+) :
     RecyclerView.Adapter<AstrologerAdapter.AstrologerViewHolder>() {
 
     private lateinit var binding: ItemAstrologerBinding
@@ -37,15 +44,18 @@ class AstrologerAdapter(private val astrologers: List<Astrologer>, private val c
 
     inner class AstrologerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(astrologer: Astrologer) {
-            binding.astrologerName.text =  astrologer.name
+            binding.astrologerName.text = astrologer.name
             binding.astrologerSpeciality.text = astrologer.specialty
             binding.astrologerRating.text = astrologer.rating.toString()
             binding.astrologerReviews.text = "(${astrologer.reviews} reviews)"
             binding.astrologerDescription.text = astrologer.description
             binding.astrologerRate.text = astrologer.rate
-            // Convert image resource name to drawable resource ID and set it
-            val imageResId = context.resources.getIdentifier(astrologer.photo, "drawable", context.packageName)
-            binding.astrologerPhoto.setImageResource(imageResId)
+
+            // Use Glide to load the actual image into the ImageView
+            Glide.with(itemView.context)
+                .load(astrologer.photo)
+                .error(R.drawable.touch) // Set an error image if loading fails
+                .into(binding.astrologerPhoto)
 
             binding.executePendingBindings()
 
@@ -55,6 +65,7 @@ class AstrologerAdapter(private val astrologers: List<Astrologer>, private val c
                 cLickListener.onClick(adapterPosition)
             }
         }
+
     }
 
     interface CLickListener {

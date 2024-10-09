@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">iastro</string>
+    <string name="app_name">iASTRO</string>
 
     <string-array name="gender_array">
         <item>Male</item>

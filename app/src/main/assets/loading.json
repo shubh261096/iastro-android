@@ -5,7 +5,7 @@
     "rating": 4,
     "reviews": 30,
     "description": "Renowned expert in tarot card reading.",
-    "photo": "deepak",
+    "photo": "https://www.imghippo.com/filedownload/rikkJ1728516816.png",
     "rate": "₹ 10/min"
   },
   {
@@ -14,7 +14,7 @@
     "rating": 4.5,
     "reviews": 120,
     "description": "Expert in numerology",
-    "photo": "kshippra",
+    "photo": "https://www.imghippo.com/filedownload/GDd9m1728516886.jpg",
     "rate": "₹ 15/min"
   },
   {
@@ -23,7 +23,7 @@
     "rating": 4.8,
     "reviews": 95,
     "description": "Renowned expert in tarot card reading.",
-    "photo": "touch",
+    "photo": "https://www.imghippo.com/filedownload/GS09i1728516906.png",
     "rate": "₹ 18/min"
   },
   {
@@ -32,7 +32,7 @@
     "rating": 4.75,
     "reviews": 110,
     "description": "Expert in the field of Vedic and career counselling.",
-    "photo": "tanya",
+    "photo": "https://www.imghippo.com/filedownload/vBrDN1728516837.png",
     "rate": "₹ 12/min"
   }
 ]

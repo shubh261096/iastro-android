@@ -52,7 +52,7 @@ class HomeActivity : AppCompatActivity(), HomeFragment.OnCardClickListener {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
-                    binding.toolbarTitle.text = "iastro"
+                    binding.toolbarTitle.text = resources.getText(R.string.app_name)
                     binding.toolbarImage.visibility = View.VISIBLE
                     // Load rotate animation from XML and apply to the rotating image
                     val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_logo)
