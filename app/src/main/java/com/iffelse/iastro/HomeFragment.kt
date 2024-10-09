@@ -4,11 +4,14 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.iffelse.iastro.databinding.FragmentHomeBinding
@@ -72,6 +75,20 @@ class HomeFragment : Fragment() {
 //                photo = R.drawable.logo
 //            )
 //        )
+
+        // Initialize Firebase Storage reference
+        val storageReference = FirebaseStorage.getInstance().reference.child("homepage_image.png")
+
+        // Get the URL for the image
+        storageReference.downloadUrl.addOnSuccessListener { uri ->
+            // Use Glide to load the image into an ImageView
+            Glide.with(this@HomeFragment)
+                .load(uri)
+                .into(binding.imageView) // Replace 'binding.imageView' with your ImageView ID
+        }.addOnFailureListener { exception ->
+            // Handle any errors
+            Log.e("Firebase", "Error loading image: ", exception)
+        }
 
         // Setup ViewPager for Banner
 
