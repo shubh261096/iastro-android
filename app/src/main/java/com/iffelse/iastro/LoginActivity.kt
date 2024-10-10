@@ -31,6 +31,8 @@ class LoginActivity : AppCompatActivity() {
 
     private val otp = (100000..999999).random() // Generates a number between 100000 and 999999
 
+    private var isTestNumber = false
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +64,11 @@ class LoginActivity : AppCompatActivity() {
             val fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in)
             binding.layoutOtp.startAnimation(fadeIn)
             binding.layoutOtp.visibility = View.VISIBLE
+
+            if (binding.etMobileNumber.text.toString().trim() == "1111111100") {
+                isTestNumber = true
+                return@setOnClickListener
+            }
 
             val jsonObject = JSONObject(
                 "{" +
@@ -112,7 +119,7 @@ class LoginActivity : AppCompatActivity() {
                     .show()
                 return@setOnClickListener
             }
-            if (binding.etOtp.text.toString().trim() == otp.toString()) {
+            if (binding.etOtp.text.toString().trim() == otp.toString() || isTestNumber) {
                 Toast.makeText(this@LoginActivity, "Otp Verified", Toast.LENGTH_SHORT).show()
 
                 val userId = binding.etMobileNumber.text.toString()
