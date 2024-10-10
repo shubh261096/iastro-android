@@ -1,6 +1,5 @@
 package com.iffelse.iastro
 
-import android.content.SyncRequest
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference

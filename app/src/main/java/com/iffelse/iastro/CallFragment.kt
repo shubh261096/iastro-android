@@ -4,11 +4,16 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.iffelse.iastro.databinding.FragmentCallBinding
@@ -62,21 +67,44 @@ class CallFragment : Fragment() {
 
         binding.recyclerViewAstrologers.layoutManager = LinearLayoutManager(requireActivity())
 
-        val astrologers: List<Astrologer> =
-            loadAstrologersFromJson<Astrologer>(requireActivity(), "loading")
+        // Create a list to hold the astrologer data
+        val astrologerList = mutableListOf<Astrologer>()
 
-        astrologerAdapter =
-            AstrologerAdapter(
-                astrologers,
-                requireActivity(),
-                object : AstrologerAdapter.CLickListener {
-                    override fun onClick(position: Int) {
-                        val dialog = FormDialogFragment(activity!!, astrologers[position])
-                        dialog.show(activity!!.supportFragmentManager, "FormDialogFragment")
+        // Reference to the 'astrologers' node in Firebase Realtime Database
+        val databaseReference = FirebaseDatabase.getInstance().getReference("astrologers")
+
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (astrologerSnapshot in snapshot.children) {
+                    // Map each child node to Astrologer object
+                    val astrologer =
+                        astrologerSnapshot.child("profileData").getValue(Astrologer::class.java)
+                    astrologer?.let {
+                        astrologerList.add(it)
                     }
+                }
 
-                })
-        binding.recyclerViewAstrologers.adapter = astrologerAdapter
+                astrologerAdapter =
+                    AstrologerAdapter(
+                        astrologerList,
+                        requireActivity(),
+                        object : AstrologerAdapter.CLickListener {
+                            override fun onClick(position: Int) {
+                                val dialog =
+                                    FormDialogFragment(activity!!, astrologerList[position])
+                                dialog.show(activity!!.supportFragmentManager, "FormDialogFragment")
+                            }
+
+                        })
+                binding.recyclerViewAstrologers.adapter = astrologerAdapter
+                // Now astrologerList contains all the astrologer data
+                // You can update the RecyclerView adapter or perform other operations with this list
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Error fetching data", error.toException())
+            }
+        })
     }
 
     private fun startAutoScroll() {
