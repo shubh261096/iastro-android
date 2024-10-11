@@ -28,6 +28,7 @@ class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
     private lateinit var astrologerAdapter: AstrologerAdapter
+    private lateinit var context: Context
 
     // Define an interface
     interface OnCardClickListener {
@@ -38,6 +39,7 @@ class HomeFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+        this.context = context
         if (context is OnCardClickListener) {
             listener = context
         } else {
@@ -69,8 +71,9 @@ class HomeFragment : Fragment() {
         // Get the URL for the image
         storageReference.downloadUrl.addOnSuccessListener { uri ->
             // Use Glide to load the image into an ImageView
-            Glide.with(requireContext())
+            Glide.with(context)
                 .load(uri)
+                .placeholder(R.drawable.astrology_background)
                 .into(binding.imageView) // Replace 'binding.imageView' with your ImageView ID
         }.addOnFailureListener { exception ->
             // Handle any errors
@@ -78,8 +81,9 @@ class HomeFragment : Fragment() {
             // Get the URL for the image
             storageReferenceGif.downloadUrl.addOnSuccessListener { uri ->
                 // Use Glide to load the image into an ImageView
-                Glide.with(requireContext())
+                Glide.with(context)
                     .load(uri)
+                    .placeholder(R.drawable.astrology_background)
                     .into(binding.imageView) // Replace 'binding.imageView' with your ImageView ID
             }.addOnFailureListener { exception ->
                 // Handle any errors
