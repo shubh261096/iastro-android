@@ -73,21 +73,21 @@ class LoginActivity : AppCompatActivity() {
             val jsonObject = JSONObject(
                 "{" +
                         "    \"extra\": {" +
-                        "        \"dltContentId\": \"1707166755462671638\"" +
+                        "        \"dltContentId\": \"1707172855535386545\"" +
                         "    }," +
                         "    \"message\": {" +
                         "        \"recipient\": 91${
                             binding.etMobileNumber.text.toString().trim()
                         }," +
-                        "        \"text\": \"Dear Customer. Login to WeCredit using OTP $otp. WeCredit(SPIRAEA)\"" +
+                        "        \"text\": \"Dear Customer. Login to iAstro using OTP $otp LZYCLK\"" +
                         "    }," +
-                        "    \"sender\": \"SPRAEA\"," +
-                        "    \"unicode\": \"true\"" +
+                        "    \"sender\": \"LAZYCL\"," +
+                        "    \"unicode\": \"False\"" +
                         "}"
             )
             val headers = mutableMapOf<String, String>()
             headers.put("Content-Type", "application/json")
-            headers.put("Authorization", getBasicAuthHeader("spiraeaotp.trans", "J5ykn"))
+            headers.put("Authorization", "Basic c3BpcmFlYW90cC50cmFuczpKNXlrbg==")
             Log.i("TAG", "onCreate: $otp")
             val url = "https://sms.timesapi.in/api/v1/message"
 
@@ -120,7 +120,7 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             if (binding.etOtp.text.toString().trim() == otp.toString() || isTestNumber) {
-                Toast.makeText(this@LoginActivity, "Otp Verified", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this@LoginActivity, "Otp Verified", Toast.LENGTH_SHORT).show()
 
                 val userId = binding.etMobileNumber.text.toString()
                     .trim() // Replace with actual phone number or user ID
