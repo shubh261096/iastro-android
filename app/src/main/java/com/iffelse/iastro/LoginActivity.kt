@@ -1,17 +1,21 @@
 package com.iffelse.iastro
 
 import android.content.Intent
+import android.content.res.Resources.Theme
+import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.text.TextUtils
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.iffelse.iastro.databinding.ActivityLoginBinding
 import com.iffelse.iastro.model.BaseErrorModel
@@ -19,8 +23,6 @@ import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import java.util.Base64
-import kotlin.random.Random
 
 class LoginActivity : AppCompatActivity() {
 
@@ -65,6 +67,8 @@ class LoginActivity : AppCompatActivity() {
             binding.layoutOtp.startAnimation(fadeIn)
             binding.layoutOtp.visibility = View.VISIBLE
 
+            binding.tvTermsConditions.visibility = View.GONE
+
             if (binding.etMobileNumber.text.toString().trim() == "1111111100") {
                 isTestNumber = true
                 return@setOnClickListener
@@ -86,8 +90,8 @@ class LoginActivity : AppCompatActivity() {
                         "}"
             )
             val headers = mutableMapOf<String, String>()
-            headers.put("Content-Type", "application/json")
-            headers.put("Authorization", "Basic c3BpcmFlYW90cC50cmFuczpKNXlrbg==")
+            headers["Content-Type"] = "application/json"
+            headers["Authorization"] = "Basic c3BpcmFlYW90cC50cmFuczpKNXlrbg=="
             Log.i("TAG", "onCreate: $otp")
             val url = "https://sms.timesapi.in/api/v1/message"
 
@@ -124,11 +128,11 @@ class LoginActivity : AppCompatActivity() {
 
                 val userId = binding.etMobileNumber.text.toString()
                     .trim() // Replace with actual phone number or user ID
-                firebaseHelper.checkIfUserExists(userId) { isUser, dataSnapShot ->
+                firebaseHelper.checkIfUserExists(userId) { isUser, _ ->
                     KeyStorePref.putString("userId", userId)
                     KeyStorePref.putBoolean("isLogin", true)
                     if (isUser) {
-                        firebaseHelper.checkIfNameExists(userId) { hasName, dataSnapShot ->
+                        firebaseHelper.checkIfNameExists(userId) { hasName, _ ->
                             if (hasName) {
                                 val intent = Intent(this, HomeActivity::class.java)
                                 startActivity(intent)
@@ -143,30 +147,83 @@ class LoginActivity : AppCompatActivity() {
                         firebaseHelper.saveUserProfile(
                             KeyStorePref.getString("userId")!!,
                             UserProfile(
-                                phoneNumber = KeyStorePref.getString("userId")!!,
-                                "", "", "", "", ""
+                                phoneNumber = KeyStorePref.getString("userId")!!
                             )
                         )
                         val intent = Intent(this, ProfileActivity::class.java)
                         startActivity(intent)
                         finish()
                     }
-
                 }
-
-
             } else {
                 Toast.makeText(this@LoginActivity, "Otp Not Verified", Toast.LENGTH_SHORT).show()
             }
-
-
         }
+        setupClickableText()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun getBasicAuthHeader(username: String, password: String): String {
-        val credentials = "$username:$password"
-        val basicAuth = "Basic " + Base64.getEncoder().encodeToString(credentials.toByteArray())
-        return basicAuth
+    private fun setupClickableText() {
+        val text = "By continuing, you agree to our Terms of use & Privacy Policy"
+
+        // Create a SpannableString from the text
+        val spannableString = SpannableString(text)
+
+        // Create clickable span for "Terms and Conditions"
+        val termsClickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                // Open Terms and Conditions URL
+                val termsUrl = "https://www.iastro.org/terms.html"
+                openUrl(termsUrl)
+            }
+        }
+
+        // Create clickable span for "Privacy Policy"
+        val privacyClickableSpan = object : ClickableSpan() {
+            override fun onClick(widget: View) {
+                // Open Privacy Policy URL
+                val privacyUrl = "https://www.iastro.org/privacy.html"
+                openUrl(privacyUrl)
+            }
+        }
+
+        // Set clickable spans for specific parts of the text
+        val termsStart = text.indexOf("Terms of use")
+        val termsEnd = termsStart + "Terms of use".length
+        spannableString.setSpan(
+            termsClickableSpan,
+            termsStart,
+            termsEnd,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        spannableString.setSpan(
+            ForegroundColorSpan(resources.getColor(R.color.orange, theme)),
+            termsStart,
+            termsEnd,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        val privacyStart = text.indexOf("Privacy Policy")
+        val privacyEnd = privacyStart + "Privacy Policy".length
+        spannableString.setSpan(
+            privacyClickableSpan,
+            privacyStart,
+            privacyEnd,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        spannableString.setSpan(
+            ForegroundColorSpan(resources.getColor(R.color.orange, theme)), privacyStart,
+            privacyEnd,
+            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+
+        // Set the spannable string to the TextView and enable movement method to handle clicks
+        binding.tvTermsConditions.text = spannableString
+        binding.tvTermsConditions.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    private fun openUrl(url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        startActivity(intent)
     }
 }

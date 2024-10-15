@@ -113,6 +113,5 @@ data class UserProfile(
     val dob: String = "",
     val time: String = "",
     val placeOfBirth: String = "",
-
-
+    val languages: List<String>? = null
     )

@@ -4,7 +4,12 @@ import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.ArrayAdapter
+import android.text.InputType
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import com.iffelse.iastro.databinding.ActivityProfileBinding
 import com.iffelse.iastro.utils.Utils
@@ -49,11 +54,55 @@ class ProfileActivity : AppCompatActivity() {
 
             AlertDialog.Builder(this)
                 .setTitle("Select Gender")
-                .setItems(genderOptions) { dialog: DialogInterface, which: Int ->
+                .setItems(genderOptions) { _: DialogInterface, which: Int ->
                     // 'which' is the index of the selected item
                     binding.etGender.setText(genderOptions[which])
                 }
                 .setNegativeButton("Cancel", null) // Add cancel option
+                .show()
+        }
+
+        // Set OnClickListener for the EditText to select preferred languages
+        binding.etLanguage.setOnClickListener {
+            // Inflate the custom layout
+            val dialogView: View =
+                LayoutInflater.from(this).inflate(R.layout.dialog_languages, null)
+
+            // Find views inside the custom layout
+            val cbHindi = dialogView.findViewById<CheckBox>(R.id.cbHindi)
+            val cbEnglish = dialogView.findViewById<CheckBox>(R.id.cbEnglish)
+            val cbOthers = dialogView.findViewById<CheckBox>(R.id.cbOthers)
+            val etOtherLanguage = dialogView.findViewById<EditText>(R.id.etOtherLanguage)
+
+            // Handle the visibility of the EditText when "Others" is checked
+            cbOthers.setOnCheckedChangeListener { _, isChecked ->
+                etOtherLanguage.visibility = if (isChecked) View.VISIBLE else View.GONE
+            }
+
+            // Create and show the dialog
+            AlertDialog.Builder(this)
+                .setTitle("Select Preferred Language")
+                .setView(dialogView) // Set the custom layout
+                .setPositiveButton("OK") { _, _ ->
+                    val selectedLanguages = mutableListOf<String>()
+
+                    // Collect selected languages
+                    if (cbHindi.isChecked) selectedLanguages.add("Hindi")
+                    if (cbEnglish.isChecked) selectedLanguages.add("English")
+                    if (cbOthers.isChecked) {
+                        val customLanguage = etOtherLanguage.text.toString().trim()
+                        // Split by commas, spaces, or any non-letter characters using regex
+                        if (customLanguage.isNotEmpty()) {
+                            val languagesList =
+                                customLanguage.split(Regex("\\s+|,\\s*")).filter { it.isNotEmpty() }
+                            selectedLanguages.addAll(languagesList)
+                        }
+                    }
+
+                    // Update the EditText with selected languages
+                    binding.etLanguage.setText(selectedLanguages.joinToString(", "))
+                }
+                .setNegativeButton("Cancel", null)
                 .show()
         }
 
@@ -65,6 +114,10 @@ class ProfileActivity : AppCompatActivity() {
             val dob = binding.etDob.text.toString().trim()
             val time = binding.etTimeOfBirth.text.toString().trim()
             val placeOfBirth = binding.etPlace.text.toString().trim()
+            val language = binding.etLanguage.text.toString().trim()
+            // Convert the input string to a List<String> by splitting on spaces and commas
+            val languageList: List<String> = language.split(Regex("\\s+|,\\s*"))
+                .filter { it.isNotEmpty() }  // Remove any empty strings
 
             // Validation
             if (name.isEmpty()) {
@@ -92,6 +145,11 @@ class ProfileActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            if (language.isEmpty()) {
+                binding.etLanguage.error = "Language is required"
+                return@setOnClickListener
+            }
+
             val firebaseHelper = FirebaseHelper()
             firebaseHelper.saveUserProfile(
                 KeyStorePref.getString("userId")!!,
@@ -101,7 +159,8 @@ class ProfileActivity : AppCompatActivity() {
                     gender = gender,
                     dob = dob,
                     time = time,
-                    placeOfBirth = placeOfBirth
+                    placeOfBirth = placeOfBirth,
+                    languages = languageList
                 )
             )
 

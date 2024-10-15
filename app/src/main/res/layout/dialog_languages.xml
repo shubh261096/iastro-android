@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Hindi Option -->
+    <CheckBox
+        android:id="@+id/cbHindi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/orange"
+        android:padding="10dp"
+        android:text="Hindi"
+        android:textColor="@color/gray" />
+
+    <!-- English Option -->
+    <CheckBox
+        android:id="@+id/cbEnglish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/orange"
+        android:padding="10dp"
+        android:text="English"
+        android:textColor="@color/gray" />
+
+    <!-- Others Option -->
+    <CheckBox
+        android:id="@+id/cbOthers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/orange"
+        android:padding="10dp"
+        android:text="Others"
+        android:textColor="@color/gray" />
+
+    <!-- EditText to Specify Custom Language (Initially hidden) -->
+    <EditText
+        android:id="@+id/etOtherLanguage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/edit_text_background"
+        android:hint="Preferred Languages"
+        android:inputType="text"
+        android:padding="12dp"
+        android:textSize="14sp"
+        android:textColor="@color/gray"
+        android:visibility="gone" />
+
+</LinearLayout>
