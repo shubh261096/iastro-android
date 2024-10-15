@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import com.google.firebase.database.GenericTypeIndicator
 import com.iffelse.iastro.databinding.DialogFormBinding
 import com.iffelse.iastro.model.Astrologer
 import com.iffelse.iastro.model.BaseErrorModel
@@ -52,11 +53,18 @@ class FormDialogFragment(private val context: Context, private val astrologer: A
                 val gender = dataSnapShot.child("gender").getValue(String::class.java)
                 val placeOfBirth = dataSnapShot.child("placeOfBirth").getValue(String::class.java)
                 val timeOfBirth = dataSnapShot.child("time").getValue(String::class.java)
+                val preferredLanguages = dataSnapShot.child("languages").getValue(object : GenericTypeIndicator<List<String>>() {})
 
                 jsonObject.put("dob", dob)
                 jsonObject.put("gender", gender)
                 jsonObject.put("placeOfBirth", placeOfBirth)
                 jsonObject.put("time", timeOfBirth)
+
+                // You can now use preferredLanguages as a list, if not null
+                if (preferredLanguages != null) {
+                    val languagesString = preferredLanguages.joinToString(", ") // Join list to string
+                    jsonObject.put("languages", languagesString) // Add to jsonObject as string
+                }
 
                 dialogFormBinding.etName.setText(name)
 
