@@ -2,8 +2,6 @@ package com.iffelse.iastro
 
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -13,17 +11,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.iffelse.iastro.databinding.FragmentHomeBinding
 import com.iffelse.iastro.model.Astrologer
-import java.io.IOException
-import java.text.FieldPosition
 
+@Suppress("NAME_SHADOWING")
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
@@ -142,31 +136,5 @@ class HomeFragment : Fragment() {
         })
 
 
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
-
-    private inline fun <reified T> loadAstrologersFromJson(
-        context: Context,
-        filename: String
-    ): List<T> {
-        var json: String? = null
-        try {
-            val inputStream = context.assets.open("$filename.json") // Open file from assets folder
-            json = inputStream.bufferedReader().use { it.readText() }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-
-        // Ensure the correct type is passed
-        return if (json != null) {
-            val listType = object : TypeToken<List<T>>() {}.type
-            Gson().fromJson(json, listType) ?: emptyList()
-        } else {
-            emptyList()
-        }
     }
 }
