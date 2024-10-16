@@ -1,7 +1,6 @@
 package com.iffelse.iastro
 
 import android.content.Intent
-import android.content.res.Resources.Theme
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -69,7 +68,7 @@ class LoginActivity : AppCompatActivity() {
 
             binding.tvTermsConditions.visibility = View.GONE
 
-            if (binding.etMobileNumber.text.toString().trim() == "1111111100") {
+            if (binding.etMobileNumber.text.toString().trim() == "1111111101") {
                 isTestNumber = true
                 return@setOnClickListener
             }

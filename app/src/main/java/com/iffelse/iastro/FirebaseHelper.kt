@@ -95,7 +95,7 @@ class FirebaseHelper {
 data class FormData(
     val name: String = "",
     val message: String = "",
-    val astrologerName : String = "",
+    val astrologerName: String = "",
     val timestamp: String = getFormattedTimestamp(), // Add other fields
     val timeToCall: String = "" // Add other fields
 )
@@ -113,5 +113,6 @@ data class UserProfile(
     val dob: String = "",
     val time: String = "",
     val placeOfBirth: String = "",
-    val languages: List<String>? = null
-    )
+    val languages: List<String>? = null,
+    val timestamp: String = getFormattedTimestamp(), // Add other fields
+)
