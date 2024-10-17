@@ -5,9 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.iffelse.iastro.model.Astrologer
+import com.iffelse.iastro.model.Banner
 
 class BannerAdapter(
-    private val imageList: List<String>,
+    private val banner: List<Banner>,
     private val cLickListener: AstrologerAdapter.CLickListener
 ) : RecyclerView.Adapter<BannerAdapter.BannerViewHolder>() {
 
@@ -17,14 +19,14 @@ class BannerAdapter(
     }
 
     override fun onBindViewHolder(holder: BannerViewHolder, position: Int) {
-        holder.bind(imageList[position])
+        holder.bind(banner[position])
     }
 
-    override fun getItemCount(): Int = imageList.size
+    override fun getItemCount(): Int = banner.size
 
     inner class BannerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(textMessage: String) {
-            itemView.findViewById<TextView>(R.id.banner_image).text = textMessage
+        fun bind(banner: Banner) {
+            itemView.findViewById<TextView>(R.id.banner_image).text = banner.message
             // Call button click listener (can add functionality later)
             itemView.setOnClickListener {
                 cLickListener.onClick(adapterPosition)

@@ -68,7 +68,7 @@ class LoginActivity : AppCompatActivity() {
 
             binding.tvTermsConditions.visibility = View.GONE
 
-            if (binding.etMobileNumber.text.toString().trim() == "1111111101") {
+            if (binding.etMobileNumber.text.toString().trim() == "1111111100") {
                 isTestNumber = true
                 return@setOnClickListener
             }

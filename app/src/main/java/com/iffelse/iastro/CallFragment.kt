@@ -18,6 +18,10 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.iffelse.iastro.databinding.FragmentCallBinding
 import com.iffelse.iastro.model.Astrologer
+import com.iffelse.iastro.model.Availability
+import com.iffelse.iastro.model.Banner
+import com.iffelse.iastro.model.ProfileData
+import com.iffelse.iastro.model.TimeSlot
 import java.io.IOException
 
 class CallFragment : Fragment() {
@@ -29,14 +33,14 @@ class CallFragment : Fragment() {
     private lateinit var runnable: Runnable
     private var currentPage = 0
 
-    private val bannerImages = listOf(
-        "Job related issues?",
-        "Career Advice needed?",
-        "Relationship or Marriage Issues",
-        "Work stress? Or Family troubles",
-        "When will my ex come back?",
-        "When will I get married?",
-        "What is my lucky number?"
+    private val bannerList = listOf(
+        Banner("Job related issues?", ""),
+        Banner("Career Advice needed?", ""),
+        Banner("Relationship or Marriage Issues", ""),
+        Banner("Work stress? Or Family troubles", ""),
+        Banner("When will my ex come back?", ""),
+        Banner("When will I get married?", ""),
+        Banner("What is my lucky number?", "")
     )
 
     override fun onCreateView(
@@ -53,9 +57,9 @@ class CallFragment : Fragment() {
 
 
         // Setup ViewPager for Banner
-        val bannerAdapter = BannerAdapter(bannerImages, object : AstrologerAdapter.CLickListener {
+        val bannerAdapter = BannerAdapter(bannerList, object : AstrologerAdapter.CLickListener {
             override fun onClick(position: Int) {
-                val dialog = FormDialogFragment(activity!!, null)
+                val dialog = FormDialogFragment(activity!!, null, bannerList[position])
                 dialog.show(activity!!.supportFragmentManager, "FormDialogFragment")
             }
         })
@@ -75,30 +79,87 @@ class CallFragment : Fragment() {
 
         databaseReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                for (astrologerSnapshot in snapshot.children) {
-                    // Map each child node to Astrologer object
-                    val astrologer =
-                        astrologerSnapshot.child("profileData").getValue(Astrologer::class.java)
-                    astrologer?.let {
-                        astrologerList.add(it)
+                // Ensure the fragment is still attached before calling requireActivity()
+                if (isAdded) {
+                    // Now it is safe to call requireActivity() because the fragment is attached
+                    val activity = requireActivity() // Safe to call
+                    // Perform the rest of your operations here
+                    astrologerList.clear() // Clear list to prevent duplicates
+
+                    for (astrologerSnapshot in snapshot.children) {
+                        // Fetch profileData
+                        val profileDataSnapshot = astrologerSnapshot.child("profileData")
+                        val name = profileDataSnapshot.child("name").getValue(String::class.java)
+                        val specialty =
+                            profileDataSnapshot.child("specialty").getValue(String::class.java)
+                        val rating = profileDataSnapshot.child("rating").getValue(Float::class.java)
+                        val reviews = profileDataSnapshot.child("reviews").getValue(Int::class.java)
+                        val description =
+                            profileDataSnapshot.child("description").getValue(String::class.java)
+                        val photo = profileDataSnapshot.child("photo").getValue(String::class.java)
+                        val rate = profileDataSnapshot.child("rate").getValue(String::class.java)
+                        val isActive =
+                            profileDataSnapshot.child("isActive").getValue(Boolean::class.java)
+                        val isOnline =
+                            profileDataSnapshot.child("isOnline").getValue(Boolean::class.java)
+
+
+                        // Create ProfileData object
+                        val profileData = ProfileData(
+                            name = name,
+                            specialty = specialty,
+                            rating = rating,
+                            reviews = reviews,
+                            description = description,
+                            photo = photo,
+                            rate = rate,
+                            isActive = isActive,
+                            isOnline = isOnline
+                        )
+
+                        // Fetch availability data
+                        val availabilitySnapshot = astrologerSnapshot.child("availability")
+                        val timeSlotList = mutableListOf<TimeSlot>()
+                        for (slotSnapshot in availabilitySnapshot.child("timeSlots").children) {
+                            val startTime =
+                                slotSnapshot.child("startTime").getValue(String::class.java)
+                            val endTime = slotSnapshot.child("endTime").getValue(String::class.java)
+                            val interval = slotSnapshot.child("interval").getValue(Int::class.java)
+                            timeSlotList.add(TimeSlot(startTime, endTime, interval))
+                        }
+
+                        // Create Availability object
+                        val availability = Availability(timeSlots = timeSlotList)
+
+                        // Create Astrologer object
+                        val astrologer = Astrologer(
+                            profileData = profileData,
+                            availability = availability
+                        )
+
+                        if (isActive == null || isActive == true) {
+                            // Add to the list
+                            astrologerList.add(astrologer)
+                        }
                     }
+
+                    astrologerAdapter =
+                        AstrologerAdapter(
+                            astrologerList,
+                            requireActivity(),
+                            object : AstrologerAdapter.CLickListener {
+                                override fun onClick(position: Int) {
+                                    val dialog =
+                                        FormDialogFragment(activity, astrologerList[position], null)
+                                    dialog.show(
+                                        activity.supportFragmentManager,
+                                        "FormDialogFragment"
+                                    )
+                                }
+
+                            })
+                    binding.recyclerViewAstrologers.adapter = astrologerAdapter
                 }
-
-                astrologerAdapter =
-                    AstrologerAdapter(
-                        astrologerList,
-                        requireActivity(),
-                        object : AstrologerAdapter.CLickListener {
-                            override fun onClick(position: Int) {
-                                val dialog =
-                                    FormDialogFragment(activity!!, astrologerList[position])
-                                dialog.show(activity!!.supportFragmentManager, "FormDialogFragment")
-                            }
-
-                        })
-                binding.recyclerViewAstrologers.adapter = astrologerAdapter
-                // Now astrologerList contains all the astrologer data
-                // You can update the RecyclerView adapter or perform other operations with this list
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -111,7 +172,7 @@ class CallFragment : Fragment() {
         handler = Handler(Looper.getMainLooper())
         runnable = Runnable {
             currentPage = binding.bannerViewpager.currentItem
-            val nextPage = (currentPage + 1) % bannerImages.size // Loop back to the first item
+            val nextPage = (currentPage + 1) % bannerList.size // Loop back to the first item
             binding.bannerViewpager.setCurrentItem(nextPage, true)
             handler.postDelayed(
                 runnable,

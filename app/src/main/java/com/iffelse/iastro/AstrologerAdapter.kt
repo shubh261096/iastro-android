@@ -42,16 +42,26 @@ class AstrologerAdapter(
 
     inner class AstrologerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(astrologer: Astrologer) {
-            binding.astrologerName.text = astrologer.name
-            binding.astrologerSpeciality.text = astrologer.specialty
-            binding.astrologerRating.text = astrologer.rating.toString()
-            binding.astrologerReviews.text = "(${astrologer.reviews} reviews)"
-            binding.astrologerDescription.text = astrologer.description
-            binding.astrologerRate.text = astrologer.rate
+            binding.astrologerName.text = astrologer.profileData?.name
+            binding.astrologerSpeciality.text = astrologer.profileData?.specialty
+            binding.astrologerRating.text = astrologer.profileData?.rating.toString()
+            binding.astrologerReviews.text = "(${astrologer.profileData?.reviews} reviews)"
+            binding.astrologerDescription.text = astrologer.profileData?.description
+            binding.astrologerRate.text = astrologer.profileData?.rate
+
+            if (astrologer.profileData?.isActive != null && astrologer.profileData.isActive) {
+                if (astrologer.profileData.isOnline != null && astrologer.profileData.isOnline) {
+                    binding.onlineStatus.visibility = View.VISIBLE
+                } else {
+                    binding.onlineStatus.visibility = View.GONE
+                }
+            } else {
+                binding.onlineStatus.visibility = View.GONE
+            }
 
             // Use Glide to load the actual image into the ImageView
             Glide.with(itemView.context)
-                .load(astrologer.photo)
+                .load(astrologer.profileData?.photo)
                 .error(R.drawable.touch) // Set an error image if loading fails
                 .into(binding.astrologerPhoto)
 

@@ -27,6 +27,19 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/touch" />
 
+            <!-- Online Status Indicator -->
+            <ImageView
+                android:id="@+id/online_status"
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_alignEnd="@id/astrologer_photo"
+                android:layout_alignBottom="@id/astrologer_photo"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="4dp"
+                android:background="@drawable/online_dot"
+                android:visibility="gone" />
+
+            <!-- Astrologer Rate -->
             <TextView
                 android:id="@+id/astrologer_rate"
                 android:layout_width="wrap_content"
