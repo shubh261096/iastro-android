@@ -13,20 +13,11 @@ android {
         applicationId "com.iffelse.iastro"
         minSdk 24
         targetSdk 34
-        versionCode 6
-        versionName "1.0.5"
-        flavorDimensions "environment"
+        versionCode 7
+        versionName "1.0.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
-        }
-
-        viewBinding {
-            enabled = true
-        }
-
-        dataBinding {
-            enabled = true
         }
     }
 
@@ -71,6 +62,9 @@ android {
     }
     buildFeatures {
         compose true
+        flavorDimensions = ["environment"]
+        viewBinding true
+        dataBinding true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.1'
