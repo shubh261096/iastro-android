@@ -130,6 +130,22 @@ object Utils {
         }
     }
 
+    fun convertTimestamp(input: String): String {
+        // Define the input and output date formats
+        val inputFormat = SimpleDateFormat("dd/MM/yy HH:mm", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.getDefault())
+
+        // Parse the input date string
+        val date = inputFormat.parse(input)
+
+        // Return the formatted date string
+        return if (date != null) {
+            outputFormat.format(date)
+        } else {
+            "Invalid date"
+        }
+    }
+
     interface DateFormatResult {
         fun onDateSelected(date: String)
     }

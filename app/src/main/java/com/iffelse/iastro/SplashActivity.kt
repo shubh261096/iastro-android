@@ -35,11 +35,9 @@ class SplashActivity : AppCompatActivity() {
                     firebaseHelper.checkIfNameExists(KeyStorePref.getString("userId")!!) { hasName, dataSnapShot ->
                         if (hasName) {
                             // Stay on the splash screen for 3 seconds before transitioning to the next screen
-                            Handler(Looper.getMainLooper()).postDelayed({
-                                val intent = Intent(this, HomeActivity::class.java)
-                                startActivity(intent)
-                                finish()
-                            }, 0) // 3 seconds
+                            val intent = Intent(this, HomeActivity::class.java)
+                            startActivity(intent)
+                            finish()
                         } else {
                             val intent = Intent(this, ProfileActivity::class.java)
                             startActivity(intent)

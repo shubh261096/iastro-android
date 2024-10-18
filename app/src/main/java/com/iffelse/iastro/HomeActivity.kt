@@ -2,6 +2,8 @@ package com.iffelse.iastro
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +19,9 @@ class HomeActivity : AppCompatActivity(), HomeFragment.OnCardClickListener {
 
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.title = ""
 
         if (KeyStorePref.getBoolean("isLogin")) {
             // Stay on the splash screen for 3 seconds before transitioning to the next screen
@@ -95,5 +100,26 @@ class HomeActivity : AppCompatActivity(), HomeFragment.OnCardClickListener {
         else if (page == "call")
             binding.bottomNavigation.selectedItemId = R.id.nav_call
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        // Inflate the menu; this adds items to the action bar if present
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_history -> {
+                // Handle Settings action
+                // Stay on the splash screen for 3 seconds before transitioning to the next screen
+                val intent = Intent(this, BookingHistoryActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+
 
 }
