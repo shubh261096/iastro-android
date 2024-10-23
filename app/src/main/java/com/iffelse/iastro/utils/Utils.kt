@@ -1,5 +1,6 @@
 package com.iffelse.iastro.utils
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
@@ -10,6 +11,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import com.iffelse.iastro.R
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.util.Base64
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -81,7 +83,7 @@ object Utils {
         initialDateString: String?,
         context: Context,
         dateFormatResult: DateFormatResult,
-        dateFormat: String = "dd/MM/yyyy"
+        dateFormat: String = "yyyy/MM/dd"
     ) {
 
         val dateForm = SimpleDateFormat(dateFormat, Locale.getDefault())
@@ -103,7 +105,7 @@ object Utils {
                 val formattedDay = String.format("%02d", dayOfMonth)
                 val formattedMonth =
                     String.format("%02d", monthOfYear + 1) // +1 since month starts from 0
-                dateFormatResult.onDateSelected("$formattedDay/$formattedMonth/$year")
+                dateFormatResult.onDateSelected("$year/$formattedMonth/$formattedDay")
             }, year, month, day
         )
 
@@ -145,6 +147,29 @@ object Utils {
             "Invalid date"
         }
     }
+
+    fun convertTo24HourFormat(timeIn12HourFormat: String): String {
+        val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault()) // Input format: 12-hour with AM/PM
+        val outputFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault()) // Output format: 24-hour with seconds
+
+        return try {
+            // Parse the input time string into a Date object
+            val parsedDate = inputFormat.parse(timeIn12HourFormat)
+
+            // Format the Date object into the 24-hour format
+            outputFormat.format(parsedDate ?: Date()) // In case of null, return current time
+        } catch (e: ParseException) {
+            e.printStackTrace()
+            ""
+        }
+    }
+
+    @SuppressLint("NewApi")
+    fun encodeToBase64(input: String): String {
+        return Base64.getEncoder().encodeToString(input.toByteArray())
+    }
+
+
 
     interface DateFormatResult {
         fun onDateSelected(date: String)
