@@ -18,6 +18,9 @@
         android:theme="@style/Theme.Iastro"
         tools:targetApi="31">
         <activity
+            android:name=".PaymentActivity"
+            android:exported="false" />
+        <activity
             android:name=".ProfileActivity"
             android:exported="false" />
         <activity
@@ -37,21 +40,17 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Firebase Messaging Service -->
+        </activity> <!-- Firebase Messaging Service -->
         <service
             android:name=".utils.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </service>
-
-        <!-- Ensure this is present -->
+        </service> <!-- Ensure this is present -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/logo" /> <!-- Your notification icon -->
+            android:resource="@drawable/logo" />
     </application>
 
 </manifest>

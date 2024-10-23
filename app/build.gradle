@@ -38,6 +38,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
+            buildConfigField 'String', 'BASE_URL', '"https://www.apsdeoria.com/iastro_web/api/v1/qa/"'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -65,6 +66,7 @@ android {
         flavorDimensions = ["environment"]
         viewBinding true
         dataBinding true
+        buildConfig true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.5.1'
@@ -111,4 +113,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
     implementation("com.google.firebase:firebase-crashlytics:19.2.0")
+
+    implementation 'com.cashfree.pg:api:2.1.17'
 }
