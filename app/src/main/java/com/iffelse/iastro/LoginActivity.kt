@@ -18,6 +18,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.iffelse.iastro.databinding.ActivityLoginBinding
 import com.iffelse.iastro.model.BaseErrorModel
+import com.iffelse.iastro.model.response.LoginResponseModel
+import com.iffelse.iastro.utils.AppConstants
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +30,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
 
     private val firebaseHelper = FirebaseHelper()
+
+    private val TAG = "LoginActivity"
 
 
     private val otp = (100000..999999).random() // Generates a number between 100000 and 999999
@@ -125,34 +129,77 @@ class LoginActivity : AppCompatActivity() {
             if (binding.etOtp.text.toString().trim() == otp.toString() || isTestNumber) {
 //                Toast.makeText(this@LoginActivity, "Otp Verified", Toast.LENGTH_SHORT).show()
 
-                val userId = binding.etMobileNumber.text.toString()
-                    .trim() // Replace with actual phone number or user ID
-                firebaseHelper.checkIfUserExists(userId) { isUser, _ ->
-                    KeyStorePref.putString("userId", userId)
-                    KeyStorePref.putBoolean("isLogin", true)
-                    if (isUser) {
-                        firebaseHelper.checkIfNameExists(userId) { hasName, _ ->
-                            if (hasName) {
-                                val intent = Intent(this, HomeActivity::class.java)
-                                startActivity(intent)
-                                finish()
-                            } else {
-                                val intent = Intent(this, ProfileActivity::class.java)
-                                startActivity(intent)
-                                finish()
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val headerMap = mutableMapOf<String, String>()
+                    headerMap["Content-Type"] = "application/x-www-form-urlencoded"
+
+                    val jsonObjectBody = JSONObject()
+                    jsonObjectBody.put(
+                        "phone",
+                        "91" + binding.etMobileNumber.text.toString().trim()
+                    )
+
+                    OkHttpNetworkProvider.post(BuildConfig.BASE_URL + "login",
+                        jsonObjectBody,
+                        headerMap,
+                        null,
+                        null,
+                        LoginResponseModel::class.java,
+                        object : OkHttpNetworkProvider.NetworkListener<LoginResponseModel> {
+                            override fun onResponse(response: LoginResponseModel?) {
+                                if (response != null) {
+                                    Log.i(TAG, "onResponse: $response")
+                                    if (response.error == false) {
+                                        KeyStorePref.putString(
+                                            AppConstants.KEY_STORE_USER_ID,
+                                            "91" + binding.etMobileNumber.text.toString().trim()
+                                        )
+                                        KeyStorePref.putBoolean(
+                                            AppConstants.KEY_STORE_IS_LOGIN,
+                                            true
+                                        )
+                                        // Check if user is new or old
+                                        if (response.userStatus == "new") {
+                                            val intent = Intent(
+                                                this@LoginActivity,
+                                                ProfileActivity::class.java
+                                            )
+                                            startActivity(intent)
+                                            finish()
+                                        } else {
+                                            if (response.user != null) {
+                                                if (!response.user.name.isNullOrEmpty()) {
+                                                    KeyStorePref.putString(
+                                                        AppConstants.KEY_STORE_NAME,
+                                                        response.user.name
+                                                    )
+                                                }
+
+                                                if (!response.user.dob.isNullOrEmpty()) {
+                                                    KeyStorePref.putString(
+                                                        AppConstants.KEY_STORE_DOB,
+                                                        response.user.dob
+                                                    )
+                                                }
+                                                val intent =
+                                                    Intent(
+                                                        this@LoginActivity,
+                                                        HomeActivity::class.java
+                                                    )
+                                                startActivity(intent)
+                                                finish()
+                                            }
+
+                                        }
+                                    }
+                                }
                             }
-                        }
-                    } else {
-                        firebaseHelper.saveUserProfile(
-                            KeyStorePref.getString("userId")!!,
-                            UserProfile(
-                                phoneNumber = KeyStorePref.getString("userId")!!
-                            )
-                        )
-                        val intent = Intent(this, ProfileActivity::class.java)
-                        startActivity(intent)
-                        finish()
-                    }
+
+                            override fun onError(error: BaseErrorModel?) {
+                                Log.i(TAG, "onError: ")
+                            }
+
+                        })
                 }
             } else {
                 Toast.makeText(this@LoginActivity, "Otp Not Verified", Toast.LENGTH_SHORT).show()

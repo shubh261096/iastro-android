@@ -9,8 +9,10 @@ import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.ErrorBody
 import okhttp3.Call
 import okhttp3.Callback
+import okhttp3.FormBody
 import okhttp3.Headers.Companion.toHeaders
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -176,8 +178,26 @@ object OkHttpNetworkProvider {
             .writeTimeout(5, TimeUnit.MINUTES)
             .build()
 
-        val requestBody =
-            jsonObjectBody?.toString()?.toRequestBody()
+        // Check if Content-Type is set to x-www-form-urlencoded
+
+        // Create the request body based on the content type
+        val requestBody = when (val contentType = headerMap["Content-Type"] ?: "application/json") {
+            "application/x-www-form-urlencoded" -> {
+                // Convert JSONObject into form-urlencoded format
+                jsonObjectBody?.let { json ->
+                    val formBodyBuilder = FormBody.Builder()
+                    json.keys().forEach {
+                        formBodyBuilder.add(it, json.getString(it))
+                    }
+                    formBodyBuilder.build()
+                }
+            }
+            "application/json" -> {
+                // Convert JSONObject to string and then to RequestBody
+                jsonObjectBody?.toString()?.toRequestBody(contentType.toMediaTypeOrNull())
+            }
+            else -> null
+        }
 
         val request = requestBody?.let {
             Request.Builder()

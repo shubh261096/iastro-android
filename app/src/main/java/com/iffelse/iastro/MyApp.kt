@@ -1,6 +1,7 @@
 package com.iffelse.iastro
 
 import android.app.Application
+import com.cashfree.pg.api.CFPaymentGatewayService
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import com.google.firebase.database.FirebaseDatabase
@@ -16,5 +17,6 @@ class MyApp : Application() {
         if (KeyStorePref.getBoolean("isLogin")) {
             Firebase.crashlytics.setUserId(KeyStorePref.getString("userId")!!)
         }
+        CFPaymentGatewayService.initialize(this); // Application Context.
     }
 }
