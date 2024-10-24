@@ -30,6 +30,9 @@
             android:name=".LoginActivity"
             android:exported="false" />
         <activity
+            android:name=".WalletActivity"
+            android:exported="false" />
+        <activity
             android:name=".BookingHistoryActivity"
             android:exported="false" />
         <activity

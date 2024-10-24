@@ -15,6 +15,7 @@ import java.util.Base64
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.UUID
 
 object Utils {
 
@@ -169,6 +170,19 @@ object Utils {
         return Base64.getEncoder().encodeToString(input.toByteArray())
     }
 
+    fun generateUniquePaymentId(): String {
+        // Generate a random UUID and replace hyphens with underscores
+        val uuid = UUID.randomUUID().toString().replace("-", "_")
+
+        // Get current timestamp
+        val timestamp = System.currentTimeMillis().toString()
+
+        // Combine both and limit the total length to 50 characters
+        val combinedId = "order_${uuid}_$timestamp"
+
+        // If the combinedId exceeds 50 characters, truncate it
+        return if (combinedId.length > 50) combinedId.take(50) else combinedId
+    }
 
 
     interface DateFormatResult {
