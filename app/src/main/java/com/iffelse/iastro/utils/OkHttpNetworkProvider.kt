@@ -54,7 +54,7 @@ object OkHttpNetworkProvider {
         url: String,
         headerMap: Map<String, String>?,
         queryParamMap: Map<String, String>?,
-        tag: String,
+        tag: String?,
         responseType: Type,
         callback: NetworkListener<T>,
     ) {

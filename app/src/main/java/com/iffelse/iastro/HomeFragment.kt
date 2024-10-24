@@ -7,18 +7,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.storage.FirebaseStorage
 import com.iffelse.iastro.databinding.FragmentHomeBinding
 import com.iffelse.iastro.model.Astrologer
-import com.iffelse.iastro.model.Availability
-import com.iffelse.iastro.model.ProfileData
-import com.iffelse.iastro.model.TimeSlot
+import com.iffelse.iastro.model.BaseErrorModel
+import com.iffelse.iastro.model.response.AstrologerResponseModel
+import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.OkHttpNetworkProvider
+import com.iffelse.iastro.utils.Utils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Suppress("NAME_SHADOWING")
 class HomeFragment : Fragment() {
@@ -103,104 +104,65 @@ class HomeFragment : Fragment() {
         // Create a list to hold the astrologer data
         val astrologerList = mutableListOf<Astrologer>()
 
-        // Reference to the 'astrologers' node in Firebase Realtime Database
-        val databaseReference = FirebaseDatabase.getInstance().getReference("astrologers")
+        lifecycleScope.launch(Dispatchers.IO) {
+            val headers = mutableMapOf<String, String>()
+            headers["Content-Type"] = "application/json"
+            headers["Authorization"] =
+                Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
+            OkHttpNetworkProvider.get(BuildConfig.BASE_URL + "astrologer",
+                headers,
+                null,
+                null,
+                AstrologerResponseModel::class.java,
+                object : OkHttpNetworkProvider.NetworkListener<AstrologerResponseModel> {
+                    override fun onResponse(response: AstrologerResponseModel?) {
+                        if (response != null) {
+                            if (response.error == false) {
+                                if (response.data != null) {
+                                    if (response.data.isEmpty())
+                                        binding.labelOurAstrologer.visibility = View.GONE
+                                    else {
+                                        binding.labelOurAstrologer.visibility = View.VISIBLE
+                                        val activity = requireActivity()
+                                        astrologerAdapter =
+                                            AstrologerAdapter(
+                                                response.data,
+                                                requireActivity(),
+                                                object : AstrologerAdapter.CLickListener {
+                                                    override fun onClick(position: Int) {
+                                                        // TODO: Fix this with api call book slots
+                                                        val dialog =
+                                                            FormDialogFragment(
+                                                                activity,
+                                                                astrologerList[position],
+                                                                null
+                                                            )
+                                                        dialog.show(
+                                                            activity.supportFragmentManager,
+                                                            "FormDialogFragment"
+                                                        )
+                                                    }
+                                                })
 
-        databaseReference.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                // Ensure the fragment is still attached before calling requireActivity()
-                if (isAdded) {
-                    // Now it is safe to call requireActivity() because the fragment is attached
-                    val activity = requireActivity() // Safe to call
-                    // Perform the rest of your operations here
-                    astrologerList.clear() // Clear list to prevent duplicates
-
-                    for (astrologerSnapshot in snapshot.children) {
-                        // Fetch profileData
-                        val profileDataSnapshot = astrologerSnapshot.child("profileData")
-                        val name = profileDataSnapshot.child("name").getValue(String::class.java)
-                        val specialty =
-                            profileDataSnapshot.child("specialty").getValue(String::class.java)
-                        val rating = profileDataSnapshot.child("rating").getValue(Float::class.java)
-                        val reviews = profileDataSnapshot.child("reviews").getValue(Int::class.java)
-                        val description =
-                            profileDataSnapshot.child("description").getValue(String::class.java)
-                        val photo = profileDataSnapshot.child("photo").getValue(String::class.java)
-                        val rate = profileDataSnapshot.child("rate").getValue(String::class.java)
-                        val isActive =
-                            profileDataSnapshot.child("isActive").getValue(Boolean::class.java)
-                        val isOnline =
-                            profileDataSnapshot.child("isOnline").getValue(Boolean::class.java)
+                                    }
 
 
-                        // Create ProfileData object
-                        val profileData = ProfileData(
-                            name = name,
-                            specialty = specialty,
-                            rating = rating,
-                            reviews = reviews,
-                            description = description,
-                            photo = photo,
-                            rate = rate,
-                            isActive = isActive,
-                            isOnline = isOnline
-                        )
-
-                        // Fetch availability data
-                        val availabilitySnapshot = astrologerSnapshot.child("availability")
-                        val timeSlotList = mutableListOf<TimeSlot>()
-                        for (slotSnapshot in availabilitySnapshot.child("timeSlots").children) {
-                            val startTime =
-                                slotSnapshot.child("startTime").getValue(String::class.java)
-                            val endTime = slotSnapshot.child("endTime").getValue(String::class.java)
-                            val interval = slotSnapshot.child("interval").getValue(Int::class.java)
-                            timeSlotList.add(TimeSlot(startTime, endTime, interval))
-                        }
-
-                        // Create Availability object
-                        val availability = Availability(timeSlots = timeSlotList)
-
-                        // Create Astrologer object
-                        val astrologer = Astrologer(
-                            profileData = profileData,
-                            availability = availability
-                        )
-
-                        if (isActive == null || isActive == true) {
-                            // Add to the list
-                            astrologerList.add(astrologer)
+                                    lifecycleScope.launch(Dispatchers.Main) {
+                                        binding.recyclerViewAstrologers.adapter = astrologerAdapter
+                                    }
+                                }
+                            }
                         }
                     }
 
-                    if (astrologerList.size == 0)
-                        binding.labelOurAstrologer.visibility = View.GONE
-                    else
-                        binding.labelOurAstrologer.visibility = View.VISIBLE
+                    override fun onError(error: BaseErrorModel?) {
+                        Log.i(TAG, "onError: ")
+                    }
+                })
+        }
+    }
 
-                    astrologerAdapter =
-                        AstrologerAdapter(
-                            astrologerList,
-                            requireActivity(),
-                            object : AstrologerAdapter.CLickListener {
-                                override fun onClick(position: Int) {
-                                    val dialog =
-                                        FormDialogFragment(activity, astrologerList[position], null)
-                                    dialog.show(
-                                        activity.supportFragmentManager,
-                                        "FormDialogFragment"
-                                    )
-                                }
-
-                            })
-                    binding.recyclerViewAstrologers.adapter = astrologerAdapter
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("Firebase", "Error fetching data", error.toException())
-            }
-        })
-
-
+    companion object {
+        private const val TAG = "HomeFragment"
     }
 }

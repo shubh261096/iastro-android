@@ -8,10 +8,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.iffelse.iastro.databinding.ItemAstrologerBinding
-import com.iffelse.iastro.model.Astrologer
+import com.iffelse.iastro.model.response.DataItem
 
 class AstrologerAdapter(
-    private val astrologers: List<Astrologer>,
+    private val astrologers: List<DataItem?>,
     private val context: Context,
     val cLickListener: CLickListener
 ) :
@@ -30,8 +30,8 @@ class AstrologerAdapter(
     }
 
     override fun onBindViewHolder(holder: AstrologerViewHolder, position: Int) {
-        val astrologer = astrologers[position]
-        holder.bind(astrologer)
+        val astrologer = astrologers.get(position)
+        holder.bind(astrologer!!)
 
         // Adding a simple fade-in animation
         holder.itemView.alpha = 0f
@@ -41,16 +41,24 @@ class AstrologerAdapter(
     override fun getItemCount(): Int = astrologers.size
 
     inner class AstrologerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(astrologer: Astrologer) {
-            binding.astrologerName.text = astrologer.profileData?.name
-            binding.astrologerSpeciality.text = astrologer.profileData?.specialty
-            binding.astrologerRating.text = astrologer.profileData?.rating.toString()
-            binding.astrologerReviews.text = "(${astrologer.profileData?.reviews} reviews)"
-            binding.astrologerDescription.text = astrologer.profileData?.description
-            binding.astrologerRate.text = astrologer.profileData?.rate
+        fun bind(astrologer: DataItem) {
+            binding.astrologerName.text = astrologer.name
+            binding.astrologerSpeciality.text = astrologer.specialty
+            binding.astrologerRating.text = astrologer.ratings
+            binding.astrologerReviews.text = buildString {
+                append("(")
+                append(astrologer.reviewsCount)
+                append(" reviews)")
+            }
+            binding.astrologerDescription.text = astrologer.descriptionShort
+            binding.astrologerRate.text = buildString {
+                append("₹ ")
+                append(astrologer.finalRate)
+                append("/min")
+            }
 
-            if (astrologer.profileData?.isActive != null && astrologer.profileData.isActive) {
-                if (astrologer.profileData.isOnline != null && astrologer.profileData.isOnline) {
+            if (astrologer.isActive == "1") {
+                if (astrologer.isOnline != null && astrologer.isOnline == "1") {
                     binding.onlineStatus.visibility = View.VISIBLE
                 } else {
                     binding.onlineStatus.visibility = View.GONE
@@ -61,7 +69,7 @@ class AstrologerAdapter(
 
             // Use Glide to load the actual image into the ImageView
             Glide.with(itemView.context)
-                .load(astrologer.profileData?.photo)
+                .load(astrologer.photo)
                 .error(R.drawable.touch) // Set an error image if loading fails
                 .into(binding.astrologerPhoto)
 
