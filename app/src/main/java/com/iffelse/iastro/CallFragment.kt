@@ -1,5 +1,6 @@
 package com.iffelse.iastro
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -56,8 +57,7 @@ class CallFragment : Fragment() {
         // Setup ViewPager for Banner
         val bannerAdapter = BannerAdapter(bannerList, object : AstrologerAdapter.CLickListener {
             override fun onClick(position: Int) {
-                val dialog = FormDialogFragment(activity!!, null, bannerList[position])
-                dialog.show(activity!!.supportFragmentManager, "FormDialogFragment")
+                // TODO: Think of something
             }
         })
         binding.bannerViewpager.adapter = bannerAdapter
@@ -94,17 +94,19 @@ class CallFragment : Fragment() {
                                             requireActivity(),
                                             object : AstrologerAdapter.CLickListener {
                                                 override fun onClick(position: Int) {
-                                                    // TODO: Fix this with api call book slots
-                                                    val dialog =
-                                                        FormDialogFragment(
-                                                            activity,
-                                                            astrologerList[position],
-                                                            null
-                                                        )
-                                                    dialog.show(
-                                                        activity.supportFragmentManager,
-                                                        "FormDialogFragment"
+                                                    val intent = Intent(
+                                                        activity,
+                                                        BookSlotActivity::class.java
                                                     )
+                                                    intent.putExtra(
+                                                        "astrologer_phone",
+                                                        response.data[position]?.phoneNumber
+                                                    )
+                                                    intent.putExtra(
+                                                        "final_rate",
+                                                        response.data[position]?.finalRate
+                                                    )
+                                                    startActivity(intent)
                                                 }
                                             })
 
@@ -143,7 +145,7 @@ class CallFragment : Fragment() {
         handler.removeCallbacks(runnable) // Stop auto-scrolling when the view is destroyed
     }
 
-    companion object{
+    companion object {
         private const val TAG = "CallFragment"
     }
 }

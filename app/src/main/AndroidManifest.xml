@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="Manifest.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".MyApp"
@@ -31,6 +32,9 @@
             android:exported="false" />
         <activity
             android:name=".WalletActivity"
+            android:exported="false" />
+        <activity
+            android:name=".BookSlotActivity"
             android:exported="false" />
         <activity
             android:name=".BookingHistoryActivity"

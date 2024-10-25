@@ -165,6 +165,28 @@ object Utils {
         }
     }
 
+    fun convertTo12HourFormat(time: String): String {
+        // Create a SimpleDateFormat for 24-hour format input
+        val inputFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        // Create a SimpleDateFormat for 12-hour format output
+        val outputFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+
+        // Parse the 24-hour time string and format it into 12-hour format
+        val date = inputFormat.parse(time)
+        return outputFormat.format(date!!)
+    }
+
+    fun convertTo12HourFormatWithoutSeconds(time: String): String {
+        // Create a SimpleDateFormat for 24-hour format input
+        val inputFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+        // Create a SimpleDateFormat for 12-hour format output
+        val outputFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
+
+        // Parse the 24-hour time string and format it into 12-hour format
+        val date = inputFormat.parse(time)
+        return outputFormat.format(date!!)
+    }
+
     @SuppressLint("NewApi")
     fun encodeToBase64(input: String): String {
         return Base64.getEncoder().encodeToString(input.toByteArray())

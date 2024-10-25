@@ -105,7 +105,7 @@ class HomeActivity : AppCompatActivity(), HomeFragment.OnCardClickListener {
             R.id.action_history -> {
                 // Handle Settings action
                 // Stay on the splash screen for 3 seconds before transitioning to the next screen
-                val intent = Intent(this, WalletActivity::class.java)
+                val intent = Intent(this, BookingHistoryActivity::class.java)
                 startActivity(intent)
                 true
             }
