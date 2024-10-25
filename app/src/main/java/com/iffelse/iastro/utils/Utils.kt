@@ -135,7 +135,7 @@ object Utils {
 
     fun convertTimestamp(input: String): String {
         // Define the input and output date formats
-        val inputFormat = SimpleDateFormat("dd/MM/yy HH:mm", Locale.getDefault())
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val outputFormat = SimpleDateFormat("dd MMM yyyy hh:mm a", Locale.getDefault())
 
         // Parse the input date string

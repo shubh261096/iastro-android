@@ -7,10 +7,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.iffelse.iastro.R
 import com.iffelse.iastro.databinding.ItemHistoryBinding
-import com.iffelse.iastro.model.FormSubmission
+import com.iffelse.iastro.model.response.BookingsHistoryItem
 import com.iffelse.iastro.utils.Utils
 
-class BookingHistoryAdapter(private val bookingList: List<FormSubmission>) :
+class BookingHistoryAdapter(private val bookingList: List<BookingsHistoryItem?>?) :
     RecyclerView.Adapter<BookingHistoryAdapter.BookingViewHolder>() {
 
     private lateinit var binding: ItemHistoryBinding
@@ -27,14 +27,14 @@ class BookingHistoryAdapter(private val bookingList: List<FormSubmission>) :
     }
 
     override fun onBindViewHolder(holder: BookingViewHolder, position: Int) {
-        val booking = bookingList[position]
-        holder.bind(booking)
+        val booking = bookingList?.get(position)
+        booking?.let { holder.bind(it) }
     }
 
-    override fun getItemCount(): Int = bookingList.size
+    override fun getItemCount(): Int = bookingList!!.size
 
     inner class BookingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(booking: FormSubmission) {
+        fun bind(booking: BookingsHistoryItem) {
             if (booking.astrologerName.isNullOrEmpty()) {
                 binding.tvAstrologerName.visibility = View.GONE
             } else {
@@ -42,11 +42,11 @@ class BookingHistoryAdapter(private val bookingList: List<FormSubmission>) :
                 binding.tvAstrologerName.text = booking.astrologerName
             }
 
-            if (booking.message.isNullOrEmpty()) {
+            if (booking.totalCost.isNullOrEmpty()) {
                 binding.tvUserMessage.visibility = View.GONE
             } else {
                 binding.tvUserMessage.visibility = View.VISIBLE
-                binding.tvUserMessage.text = "Message: ${booking.message}"
+                binding.tvUserMessage.text = "Total Cost: ${booking.totalCost}"
             }
 
             if (booking.timestamp.isNullOrEmpty()) {
@@ -57,11 +57,11 @@ class BookingHistoryAdapter(private val bookingList: List<FormSubmission>) :
                     Utils.convertTimestamp(booking.timestamp)
             }
 
-            if (booking.timeToCall.isNullOrEmpty()) {
+            if (booking.bookedStartTime.isNullOrEmpty()) {
                 binding.tvTimeSlot.visibility = View.GONE
             } else {
                 binding.tvTimeSlot.visibility = View.VISIBLE
-                binding.tvTimeSlot.text = "Time slot: ${booking.timeToCall}"
+                binding.tvTimeSlot.text = "Booked slot time: ${booking.bookedStartTime}"
             }
         }
     }
