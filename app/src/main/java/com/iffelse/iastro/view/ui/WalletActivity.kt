@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.ui
 
 
 import android.app.Activity
@@ -10,10 +10,12 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.iffelse.iastro.BuildConfig
 import com.iffelse.iastro.databinding.ActivityWalletBinding
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.WalletResponseModel
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
 import kotlinx.coroutines.Dispatchers
@@ -72,7 +74,8 @@ class WalletActivity : AppCompatActivity() {
             headers["Content-Type"] = "application/json"
             headers["Authorization"] =
                 Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
-            OkHttpNetworkProvider.get(BuildConfig.BASE_URL + "wallet/get_balance/" + KeyStorePref.getString(
+            OkHttpNetworkProvider.get(
+                BuildConfig.BASE_URL + "wallet/get_balance/" + KeyStorePref.getString(
                 AppConstants.KEY_STORE_USER_ID
             ),
                 headers,

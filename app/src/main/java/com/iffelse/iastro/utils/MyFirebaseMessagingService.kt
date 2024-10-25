@@ -16,7 +16,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.iffelse.iastro.HomeActivity
+import com.iffelse.iastro.view.ui.HomeActivity
 import com.iffelse.iastro.R
 import java.net.HttpURLConnection
 import java.net.URL

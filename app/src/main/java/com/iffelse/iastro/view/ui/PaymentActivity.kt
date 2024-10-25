@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.ui
 
 import android.app.Activity
 import android.os.Bundle
@@ -13,10 +13,13 @@ import com.cashfree.pg.core.api.callback.CFCheckoutResponseCallback
 import com.cashfree.pg.core.api.utils.CFErrorResponse
 import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutPayment
 import com.cashfree.pg.core.api.webcheckout.CFWebCheckoutTheme
+import com.iffelse.iastro.BuildConfig
+import com.iffelse.iastro.R
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.LoginResponseModel
 import com.iffelse.iastro.model.response.OrderResponseModel
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
 import kotlinx.coroutines.Dispatchers
@@ -83,7 +86,8 @@ class PaymentActivity : AppCompatActivity(), CFCheckoutResponseCallback {
             )
             jsonObjectBody.put("order_meta", jsonObjectOrderMeta)
 
-            OkHttpNetworkProvider.post(BuildConfig.BASE_URL + "order/create_order",
+            OkHttpNetworkProvider.post(
+                BuildConfig.BASE_URL + "order/create_order",
                 jsonObjectBody,
                 headers,
                 null,
@@ -124,7 +128,8 @@ class PaymentActivity : AppCompatActivity(), CFCheckoutResponseCallback {
             headers["Content-Type"] = "application/json"
             headers["Authorization"] =
                 Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
-            OkHttpNetworkProvider.get(BuildConfig.BASE_URL + "order/verify_order/$orderID",
+            OkHttpNetworkProvider.get(
+                BuildConfig.BASE_URL + "order/verify_order/$orderID",
                 headers,
                 null,
                 null,

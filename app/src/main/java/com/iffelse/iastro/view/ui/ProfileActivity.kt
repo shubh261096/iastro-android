@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.ui
 
 import android.content.DialogInterface
 import android.content.Intent
@@ -11,10 +11,13 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.iffelse.iastro.BuildConfig
+import com.iffelse.iastro.R
 import com.iffelse.iastro.databinding.ActivityProfileBinding
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.LoginResponseModel
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
 import kotlinx.coroutines.Dispatchers
@@ -182,7 +185,8 @@ class ProfileActivity : AppCompatActivity() {
                 jsonObjectBody.put("preferred_languages", languagesJsonArray)
                 jsonObjectBody.put("gender", gender)
 
-                OkHttpNetworkProvider.post(BuildConfig.BASE_URL + "/UserProfile/update_user",
+                OkHttpNetworkProvider.post(
+                    BuildConfig.BASE_URL + "/UserProfile/update_user",
                     jsonObjectBody,
                     headers,
                     null,

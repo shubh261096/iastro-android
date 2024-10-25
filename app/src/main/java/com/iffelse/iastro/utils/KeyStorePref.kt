@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.utils
 
 import android.content.Context
 import android.content.SharedPreferences

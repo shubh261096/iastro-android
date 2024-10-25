@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.utils
 
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError

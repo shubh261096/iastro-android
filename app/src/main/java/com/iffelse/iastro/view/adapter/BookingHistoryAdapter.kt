@@ -1,10 +1,11 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.adapter
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.iffelse.iastro.R
 import com.iffelse.iastro.databinding.ItemHistoryBinding
 import com.iffelse.iastro.model.FormSubmission
 import com.iffelse.iastro.utils.Utils

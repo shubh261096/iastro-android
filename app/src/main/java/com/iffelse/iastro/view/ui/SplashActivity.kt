@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -8,7 +8,9 @@ import android.os.Handler
 import android.os.Looper
 import android.view.animation.AnimationUtils
 import android.widget.ImageView
+import com.iffelse.iastro.R
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.KeyStorePref
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {

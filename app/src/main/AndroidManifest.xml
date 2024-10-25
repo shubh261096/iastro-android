@@ -19,28 +19,28 @@
         android:theme="@style/Theme.Iastro"
         tools:targetApi="31">
         <activity
-            android:name=".PaymentActivity"
+            android:name=".view.ui.PaymentActivity"
             android:exported="false" />
         <activity
-            android:name=".ProfileActivity"
+            android:name=".view.ui.ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".HomeActivity"
+            android:name=".view.ui.HomeActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".view.ui.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".WalletActivity"
+            android:name=".view.ui.WalletActivity"
             android:exported="false" />
         <activity
-            android:name=".BookSlotActivity"
+            android:name=".view.ui.BookSlotActivity"
             android:exported="false" />
         <activity
-            android:name=".BookingHistoryActivity"
+            android:name=".view.ui.BookingHistoryActivity"
             android:exported="false" />
         <activity
-            android:name=".SplashActivity"
+            android:name=".view.ui.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

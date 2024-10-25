@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.fragment
 
 import android.app.Dialog
 import android.content.Context
@@ -13,10 +13,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.firebase.database.GenericTypeIndicator
+import com.iffelse.iastro.utils.KeyStorePref
+import com.iffelse.iastro.view.adapter.TimeSlotAdapter
 import com.iffelse.iastro.databinding.DialogFormBinding
 import com.iffelse.iastro.model.Astrologer
 import com.iffelse.iastro.model.Banner
 import com.iffelse.iastro.model.BaseErrorModel
+import com.iffelse.iastro.utils.FirebaseHelper
+import com.iffelse.iastro.utils.FormData
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
 import org.json.JSONObject

@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.fragment
 
 import android.content.Context
 import android.content.Intent
@@ -12,13 +12,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.firebase.storage.FirebaseStorage
+import com.iffelse.iastro.BuildConfig
+import com.iffelse.iastro.utils.KeyStorePref
+import com.iffelse.iastro.R
+import com.iffelse.iastro.view.adapter.AstrologerAdapter
 import com.iffelse.iastro.databinding.FragmentHomeBinding
-import com.iffelse.iastro.model.Astrologer
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.AstrologerResponseModel
 import com.iffelse.iastro.utils.AppConstants
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
+import com.iffelse.iastro.view.ui.BookSlotActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -108,7 +112,8 @@ class HomeFragment : Fragment() {
             headers["Content-Type"] = "application/json"
             headers["Authorization"] =
                 Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
-            OkHttpNetworkProvider.get(BuildConfig.BASE_URL + "astrologer",
+            OkHttpNetworkProvider.get(
+                BuildConfig.BASE_URL + "astrologer",
                 headers,
                 null,
                 null,

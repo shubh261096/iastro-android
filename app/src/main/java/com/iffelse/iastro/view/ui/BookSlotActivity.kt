@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -9,6 +9,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import com.iffelse.iastro.BuildConfig
+import com.iffelse.iastro.utils.KeyStorePref
+import com.iffelse.iastro.view.adapter.SlotAdapter
+import com.iffelse.iastro.view.adapter.MinutesAdapter
+import com.iffelse.iastro.view.adapter.TimeSlotsAdapter
 import com.iffelse.iastro.databinding.ActivitySlotBookingsBinding
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.LoginResponseModel
@@ -100,9 +105,10 @@ class BookSlotActivity : AppCompatActivity() {
             headers["Content-Type"] = "application/json"
             headers["Authorization"] =
                 Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
-            OkHttpNetworkProvider.get(BuildConfig.BASE_URL + "wallet/get_balance/" + KeyStorePref.getString(
-                AppConstants.KEY_STORE_USER_ID
-            ),
+            OkHttpNetworkProvider.get(
+                BuildConfig.BASE_URL + "wallet/get_balance/" + KeyStorePref.getString(
+                    AppConstants.KEY_STORE_USER_ID
+                ),
                 headers,
                 null,
                 null,
@@ -138,7 +144,8 @@ class BookSlotActivity : AppCompatActivity() {
             headers["Content-Type"] = "application/json"
             headers["Authorization"] =
                 Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
-            OkHttpNetworkProvider.get(BuildConfig.BASE_URL + "astrologer/all_slots/$astrologerPhoneNumber",
+            OkHttpNetworkProvider.get(
+                BuildConfig.BASE_URL + "astrologer/all_slots/$astrologerPhoneNumber",
                 headers,
                 null,
                 null,
@@ -177,7 +184,8 @@ class BookSlotActivity : AppCompatActivity() {
             jsonObjectBody.put("astrologer_phone", slotsItem.astrologerPhone)
             jsonObjectBody.put("slot_id", slotsItem.slotId)
 
-            OkHttpNetworkProvider.post(BuildConfig.BASE_URL + "astrologer/astrologers_bookings",
+            OkHttpNetworkProvider.post(
+                BuildConfig.BASE_URL + "astrologer/astrologers_bookings",
                 jsonObjectBody,
                 headerMap,
                 null,
@@ -274,7 +282,8 @@ class BookSlotActivity : AppCompatActivity() {
             )
             jsonObjectBody.put("booked_start_time", this@BookSlotActivity.selectedStartTime)
 
-            OkHttpNetworkProvider.post(BuildConfig.BASE_URL + "booking/book_slot",
+            OkHttpNetworkProvider.post(
+                BuildConfig.BASE_URL + "booking/book_slot",
                 jsonObjectBody,
                 headerMap,
                 null,

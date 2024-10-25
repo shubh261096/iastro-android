@@ -6,6 +6,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.inappmessaging.FirebaseInAppMessaging
+import com.iffelse.iastro.utils.KeyStorePref
 
 class MyApp : Application() {
     override fun onCreate() {

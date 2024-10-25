@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.fragment
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,14 +11,18 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.iffelse.iastro.BuildConfig
+import com.iffelse.iastro.utils.KeyStorePref
+import com.iffelse.iastro.view.adapter.AstrologerAdapter
+import com.iffelse.iastro.view.adapter.BannerAdapter
 import com.iffelse.iastro.databinding.FragmentCallBinding
-import com.iffelse.iastro.model.Astrologer
 import com.iffelse.iastro.model.Banner
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.AstrologerResponseModel
 import com.iffelse.iastro.utils.AppConstants
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
+import com.iffelse.iastro.view.ui.BookSlotActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -69,14 +73,14 @@ class CallFragment : Fragment() {
         binding.recyclerViewAstrologers.layoutManager = LinearLayoutManager(requireActivity())
 
         // Create a list to hold the astrologer data
-        val astrologerList = mutableListOf<Astrologer>()
 
         lifecycleScope.launch(Dispatchers.IO) {
             val headers = mutableMapOf<String, String>()
             headers["Content-Type"] = "application/json"
             headers["Authorization"] =
                 Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
-            OkHttpNetworkProvider.get(BuildConfig.BASE_URL + "astrologer",
+            OkHttpNetworkProvider.get(
+                BuildConfig.BASE_URL + "astrologer",
                 headers,
                 null,
                 null,

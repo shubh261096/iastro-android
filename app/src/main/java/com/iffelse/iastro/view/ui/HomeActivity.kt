@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,8 +8,13 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.iffelse.iastro.view.fragment.HomeFragment
+import com.iffelse.iastro.utils.KeyStorePref
+import com.iffelse.iastro.R
+import com.iffelse.iastro.view.fragment.TrendingFragment
 import com.iffelse.iastro.databinding.ActivityHomeBinding
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.view.fragment.CallFragment
 
 class HomeActivity : AppCompatActivity(), HomeFragment.OnCardClickListener {
 

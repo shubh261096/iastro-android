@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.ui
 
 import android.content.Intent
 import android.net.Uri
@@ -16,10 +16,14 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.iffelse.iastro.BuildConfig
+import com.iffelse.iastro.R
 import com.iffelse.iastro.databinding.ActivityLoginBinding
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.LoginResponseModel
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.FirebaseHelper
+import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -139,7 +143,8 @@ class LoginActivity : AppCompatActivity() {
                         "91" + binding.etMobileNumber.text.toString().trim()
                     )
 
-                    OkHttpNetworkProvider.post(BuildConfig.BASE_URL + "login",
+                    OkHttpNetworkProvider.post(
+                        BuildConfig.BASE_URL + "login",
                         jsonObjectBody,
                         headerMap,
                         null,

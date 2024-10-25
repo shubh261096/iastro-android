@@ -1,4 +1,4 @@
-package com.iffelse.iastro
+package com.iffelse.iastro.view.fragment
 
 import android.os.Bundle
 import android.util.Log
@@ -8,9 +8,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.iffelse.iastro.R
 import com.iffelse.iastro.databinding.FragmentTrendingBinding
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
 import org.json.JSONObject
@@ -62,11 +64,11 @@ class TrendingFragment : Fragment() {
         activeButton.setBackgroundResource(R.drawable.active_button_background)
 
         // Optionally, change text colors as well if needed
-        binding.btnYesterday.setTextColor(ContextCompat.getColor(requireActivity(),R.color.orange))
-        binding.btnToday.setTextColor(ContextCompat.getColor(requireActivity(),R.color.orange))
-        binding.btnTomorrow.setTextColor(ContextCompat.getColor(requireActivity(),R.color.orange))
+        binding.btnYesterday.setTextColor(ContextCompat.getColor(requireActivity(), R.color.orange))
+        binding.btnToday.setTextColor(ContextCompat.getColor(requireActivity(), R.color.orange))
+        binding.btnTomorrow.setTextColor(ContextCompat.getColor(requireActivity(), R.color.orange))
 
-        activeButton.setTextColor(ContextCompat.getColor(requireActivity(),R.color.white))
+        activeButton.setTextColor(ContextCompat.getColor(requireActivity(), R.color.white))
     }
 
     private fun fetchHoroscope(day: String) {
