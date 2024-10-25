@@ -13,8 +13,8 @@ android {
         applicationId "com.iffelse.iastro"
         minSdk 24
         targetSdk 34
-        versionCode 8
-        versionName "1.0.7"
+        versionCode 9
+        versionName "1.0.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
@@ -32,6 +32,7 @@ android {
 
     buildTypes {
         release {
+            buildConfigField 'String', 'BASE_URL', '"https://www.apsdeoria.com/iastro_web/api/v1/qa/"'
             signingConfig signingConfigs.config
             minifyEnabled true
             shrinkResources true

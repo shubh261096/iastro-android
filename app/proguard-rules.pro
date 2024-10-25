@@ -130,3 +130,5 @@
 
 # Keep class members with the annotation @Keep
 -keep @com.google.gson.annotations.SerializedName class * { *; }
+
+-keep class com.cashfree.pg.** {*;}

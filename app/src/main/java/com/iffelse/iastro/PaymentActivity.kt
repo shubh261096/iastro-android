@@ -28,7 +28,7 @@ class PaymentActivity : AppCompatActivity(), CFCheckoutResponseCallback {
 
     private var paymentOrderID = ""
     private var paymentSessionID = ""
-    private var cfEnvironment = CFSession.Environment.SANDBOX
+    private var cfEnvironment = CFSession.Environment.PRODUCTION
     private var amount = 0.00
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

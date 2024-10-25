@@ -110,6 +110,14 @@ class HomeActivity : AppCompatActivity(), HomeFragment.OnCardClickListener {
                 true
             }
 
+            R.id.action_wallet -> {
+                // Handle Settings action
+                // Stay on the splash screen for 3 seconds before transitioning to the next screen
+                val intent = Intent(this, WalletActivity::class.java)
+                startActivity(intent)
+                true
+            }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
