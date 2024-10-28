@@ -76,8 +76,8 @@ class WalletActivity : AppCompatActivity() {
                 Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
             OkHttpNetworkProvider.get(
                 BuildConfig.BASE_URL + "wallet/get_balance/" + KeyStorePref.getString(
-                AppConstants.KEY_STORE_USER_ID
-            ),
+                    AppConstants.KEY_STORE_USER_ID
+                ),
                 headers,
                 null,
                 null,
@@ -105,7 +105,7 @@ class WalletActivity : AppCompatActivity() {
 
     private fun addMoneyToWallet(amount: Double) {
         val intent = Intent(this@WalletActivity, PaymentActivity::class.java)
-        intent.putExtra("amount", amount)
+        intent.putExtra("amount", amount * 100)
         activityResultLauncher.launch(intent)
     }
 

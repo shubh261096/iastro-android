@@ -115,5 +115,5 @@ dependencies {
 
     implementation("com.google.firebase:firebase-crashlytics:19.2.0")
 
-    implementation 'com.cashfree.pg:api:2.1.17'
+    implementation 'com.razorpay:checkout:1.6.40'
 }
