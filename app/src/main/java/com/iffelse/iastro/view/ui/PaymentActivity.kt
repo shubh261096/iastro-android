@@ -48,6 +48,8 @@ class PaymentActivity : AppCompatActivity(),
             val options = JSONObject()
             options.put("name", "iAstro")
             options.put("description", "Add Money to wallet")
+            options.put("image", "https://iastro.org/primary.png")
+            options.put("theme.color", "#F48534");
             options.put("order_id", paymentOrderID)
             options.put("send_sms_hash", true)
             options.put("currency", "INR")

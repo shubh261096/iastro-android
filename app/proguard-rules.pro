@@ -131,4 +131,20 @@
 # Keep class members with the annotation @Keep
 -keep @com.google.gson.annotations.SerializedName class * { *; }
 
--keep class com.cashfree.pg.** {*;}
+-keep class com.razorpay.** {*;}
+
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+-keepattributes JavascriptInterface
+-keepattributes *Annotation*
+
+-dontwarn com.razorpay.**
+-keep class com.razorpay.** {*;}
+
+-optimizations !method/inlining/*
+
+-keepclasseswithmembers class * {
+  public void onPayment*(...);
+}

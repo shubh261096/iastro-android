@@ -103,8 +103,7 @@ class BookSlotActivity : AppCompatActivity() {
 
         val listener = object : MinutesAdapter.OnMinuteSelectedListener {
             override fun onMinuteSelected(minute: Int) {
-                if (minute != 2)
-                    this@BookSlotActivity.isFreeUser = false
+                this@BookSlotActivity.isFreeUser = minute == 2
                 selectedDuration = minute
                 binding.timeSlotLayout.visibility = View.VISIBLE
                 loadAvailableSlots()
