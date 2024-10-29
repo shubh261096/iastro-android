@@ -335,8 +335,11 @@ class BookSlotActivity : AppCompatActivity() {
         val maxSlots = 100 // Adjust this number based on your needs
         var slotCount = 0
 
-        while (currentTime.isBefore(finalTime) && slotCount < maxSlots) {
+        while (slotCount < maxSlots) {
             val nextTime = currentTime.plusMinutes(intervalMinutes.toLong())
+
+            // Break if the nextTime crosses into the next day
+            if (nextTime.isBefore(currentTime) || nextTime.isAfter(finalTime)) break
 
             // Check if the time slot is booked
             val isBooked = bookedSlots.any { bookedSlot ->
@@ -353,9 +356,6 @@ class BookSlotActivity : AppCompatActivity() {
             // Move to the next time slot
             currentTime = nextTime
             slotCount++
-
-            // Break if the time goes beyond the final time
-            if (nextTime.isAfter(finalTime)) break
         }
 
 
