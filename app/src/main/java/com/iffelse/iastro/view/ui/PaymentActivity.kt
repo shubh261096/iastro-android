@@ -49,7 +49,7 @@ class PaymentActivity : AppCompatActivity(),
             options.put("name", "iAstro")
             options.put("description", "Add Money to wallet")
             options.put("image", "https://iastro.org/primary.png")
-            options.put("theme.color", "#F48534");
+            options.put("theme.color", "#F48534")
             options.put("order_id", paymentOrderID)
             options.put("send_sms_hash", true)
             options.put("currency", "INR")
@@ -110,14 +110,15 @@ class PaymentActivity : AppCompatActivity(),
 
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
-                        // TODO: Handle Error
-                        Toast.makeText(
-                            this@PaymentActivity,
-                            error?.message ?: "Something went wrong!",
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
-                        finish()
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@PaymentActivity,
+                                error?.message ?: "Something went wrong!",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                            finish()
+                        }
                     }
 
                 })
@@ -158,21 +159,25 @@ class PaymentActivity : AppCompatActivity(),
                                     finish()
                                 }
                             } else {
-                                Toast.makeText(
-                                    this@PaymentActivity,
-                                    response.message,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                finish()
+                                lifecycleScope.launch(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        this@PaymentActivity,
+                                        response.message,
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    finish()
+                                }
                             }
                         }
                     }
 
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
-                        Toast.makeText(this@PaymentActivity, error?.message, Toast.LENGTH_SHORT)
-                            .show()
-                        finish()
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Toast.makeText(this@PaymentActivity, error?.message, Toast.LENGTH_SHORT)
+                                .show()
+                            finish()
+                        }
                     }
                 })
         }
