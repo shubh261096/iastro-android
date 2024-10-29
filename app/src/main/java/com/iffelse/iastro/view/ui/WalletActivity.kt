@@ -85,13 +85,12 @@ class WalletActivity : AppCompatActivity() {
                 object : OkHttpNetworkProvider.NetworkListener<WalletResponseModel> {
                     override fun onResponse(response: WalletResponseModel?) {
                         if (response != null) {
-                            if (!response.walletBalance.isNullOrEmpty()) {
+                            if (!response.walletBalance?.balance.isNullOrEmpty()) {
                                 // Update wallet balance text view
                                 lifecycleScope.launch(Dispatchers.Main) {
                                     binding.tvWalletBalance.text =
-                                        "Current Wallet Balance: Rs. ${response.walletBalance}"
+                                        "Current Wallet Balance: Rs. ${response.walletBalance?.balance}"
                                 }
-
                             }
                         }
                     }

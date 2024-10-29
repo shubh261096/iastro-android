@@ -39,6 +39,7 @@ class BookSlotActivity : AppCompatActivity() {
     private var astrologerPhoneNumber: String = ""
     private var slotId: String = ""
     private var selectedStartTime: String = ""
+    private var isFreeUser: Boolean = false
 
 
     private lateinit var slotAdapter: SlotAdapter
@@ -62,13 +63,48 @@ class BookSlotActivity : AppCompatActivity() {
             finish()
         }
 
+
+        val gridLayoutManagerSlots = GridLayoutManager(this, 3)
+        // RecyclerView setup for available slots
+        binding.rvAvailableSlots.layoutManager = gridLayoutManagerSlots
+
+
+        // Book Slot button listener
+        binding.bookSlotButton.setOnClickListener {
+            if (this.isFreeUser) {
+                bookSlots()
+            } else {
+                if (checkWalletBalance()) {
+                    bookSlots()
+                } else {
+                    promptUserToAddMoney()
+                }
+            }
+        }
+
+        binding.clWallet.setOnClickListener {
+            val intent = Intent(this, WalletActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        updateWalletBalanceUI()
+    }
+
+    private fun showMinutesUI() {
         val gridLayoutManagerMinutes = GridLayoutManager(this, 3) // 3 columns
         binding.rvMinutes.layoutManager = gridLayoutManagerMinutes
 
-        val minutesList = listOf(5, 10, 15, 20, 25, 30) // Add more minutes as needed
+        val minutesList: List<Int> = if (this@BookSlotActivity.isFreeUser)
+            listOf(2, 5, 10, 15, 20, 25, 30) // Add more minutes as needed
+        else
+            listOf(5, 10, 15, 20, 25, 30) // Add more minutes as needed
+
 
         val listener = object : MinutesAdapter.OnMinuteSelectedListener {
             override fun onMinuteSelected(minute: Int) {
+                if (minute != 2)
+                    this@BookSlotActivity.isFreeUser = false
                 selectedDuration = minute
                 binding.timeSlotLayout.visibility = View.VISIBLE
                 loadAvailableSlots()
@@ -80,23 +116,6 @@ class BookSlotActivity : AppCompatActivity() {
 
         val adapter = MinutesAdapter(minutesList, listener)
         binding.rvMinutes.adapter = adapter
-
-
-        val gridLayoutManagerSlots = GridLayoutManager(this, 3)
-        // RecyclerView setup for available slots
-        binding.rvAvailableSlots.layoutManager = gridLayoutManagerSlots
-
-
-        // Book Slot button listener
-        binding.bookSlotButton.setOnClickListener {
-            if (checkWalletBalance()) {
-                bookSlots()
-            } else {
-                promptUserToAddMoney()
-            }
-        }
-
-        updateWalletBalanceUI()
     }
 
     private fun updateWalletBalanceUI() {
@@ -116,16 +135,20 @@ class BookSlotActivity : AppCompatActivity() {
                 object : OkHttpNetworkProvider.NetworkListener<WalletResponseModel> {
                     override fun onResponse(response: WalletResponseModel?) {
                         if (response != null) {
-                            if (!response.walletBalance.isNullOrEmpty()) {
+                            if (!response.walletBalance?.balance.isNullOrEmpty()) {
                                 this@BookSlotActivity.walletBalance =
-                                    response.walletBalance.toDouble()
+                                    response.walletBalance?.balance?.toDouble()!!
+                                if (response.walletBalance.isFree == "1")
+                                    this@BookSlotActivity.isFreeUser = true
                                 // Update wallet balance text view
                                 lifecycleScope.launch(Dispatchers.Main) {
                                     binding.tvWalletBalance.text =
                                         buildString {
-                                            append("Wallet Balance: Rs. ")
-                                            append(response.walletBalance)
+                                            append("Rs. ")
+                                            append(response.walletBalance.balance)
                                         }
+
+                                    showMinutesUI()
                                 }
                             }
                         }
@@ -281,6 +304,9 @@ class BookSlotActivity : AppCompatActivity() {
                 (this@BookSlotActivity.selectedDuration * this@BookSlotActivity.astrologerRate)
             )
             jsonObjectBody.put("booked_start_time", this@BookSlotActivity.selectedStartTime)
+            if (this@BookSlotActivity.isFreeUser)
+                jsonObjectBody.put("is_free", isFreeUser)
+
 
             OkHttpNetworkProvider.post(
                 BuildConfig.BASE_URL + "booking/book_slot",

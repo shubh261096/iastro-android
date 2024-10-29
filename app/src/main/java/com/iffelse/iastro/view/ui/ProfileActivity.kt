@@ -131,11 +131,6 @@ class ProfileActivity : AppCompatActivity() {
             val time = binding.etTimeOfBirth.text.toString().trim()
             val placeOfBirth = binding.etPlace.text.toString().trim()
             val language = binding.etLanguage.text.toString().trim()
-            // Convert the input string to a List<String> by splitting on spaces and commas
-            val languageList: List<String> = language.split(Regex("\\s+|,\\s*"))
-                .filter { it.isNotEmpty() }  // Remove any empty strings
-            // Convert the languageList to a JSONArray
-            val languagesJsonArray = JSONArray(languageList)
             // Validation
             if (name.isEmpty()) {
                 binding.etName.error = "Name is required"
@@ -182,7 +177,7 @@ class ProfileActivity : AppCompatActivity() {
                 jsonObjectBody.put("dob", dob)
                 jsonObjectBody.put("time_of_birth", convertedTime)
                 jsonObjectBody.put("place_of_birth", placeOfBirth)
-                jsonObjectBody.put("preferred_languages", languagesJsonArray)
+                jsonObjectBody.put("preferred_languages", language)
                 jsonObjectBody.put("gender", gender)
 
                 OkHttpNetworkProvider.post(
