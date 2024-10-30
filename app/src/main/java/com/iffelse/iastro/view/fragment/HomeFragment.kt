@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -154,6 +155,10 @@ class HomeFragment : Fragment() {
 
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Toast.makeText(activity, error?.message, Toast.LENGTH_SHORT)
+                                .show()
+                        }
                     }
                 })
         }

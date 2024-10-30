@@ -77,12 +77,8 @@ class TrendingFragment : Fragment() {
         ) {
             val dateOfBirth = KeyStorePref.getString(AppConstants.KEY_STORE_DOB)
             // Example Date of Birth
-            val dob = dateOfBirth?.let {
-                SimpleDateFormat(
-                    "yyyy-MM-dd",
-                    Locale.getDefault()
-                ).parse(it)
-            }
+            val dob = dateOfBirth?.let { Utils.parseDate(it) }
+
 
             val sign = dob?.let { Utils.getSunSign(it) }
             OkHttpNetworkProvider.get("https://horoscope-app-api.vercel.app/api/v1/get-horoscope/daily?sign=$sign&day=$day",

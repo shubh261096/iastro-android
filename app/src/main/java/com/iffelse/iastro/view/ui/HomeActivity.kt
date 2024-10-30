@@ -6,6 +6,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.iffelse.iastro.view.fragment.HomeFragment
@@ -83,6 +84,12 @@ class HomeActivity : AppCompatActivity(), HomeFragment.OnCardClickListener {
                 else -> false
             }
         }
+
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishAffinity()
+            }
+        })
 
     }
 

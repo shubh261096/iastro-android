@@ -35,6 +35,8 @@ class WalletActivity : AppCompatActivity() {
 
         binding.toolbarImage.setOnClickListener {
             val intent = Intent(this, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
         }
@@ -69,6 +71,7 @@ class WalletActivity : AppCompatActivity() {
     }
 
     private fun updateWalletBalanceUI() {
+        Utils.showProgress(this@WalletActivity, "Please wait...")
         lifecycleScope.launch(Dispatchers.IO) {
             val headers = mutableMapOf<String, String>()
             headers["Content-Type"] = "application/json"
@@ -84,12 +87,18 @@ class WalletActivity : AppCompatActivity() {
                 WalletResponseModel::class.java,
                 object : OkHttpNetworkProvider.NetworkListener<WalletResponseModel> {
                     override fun onResponse(response: WalletResponseModel?) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                        }
                         if (response != null) {
                             if (!response.walletBalance?.balance.isNullOrEmpty()) {
                                 // Update wallet balance text view
                                 lifecycleScope.launch(Dispatchers.Main) {
                                     binding.tvWalletBalance.text =
-                                        "Current Wallet Balance: Rs. ${response.walletBalance?.balance}"
+                                        buildString {
+                                            append("Current Wallet Balance: Rs. ")
+                                            append(response.walletBalance?.balance)
+                                        }
                                 }
                             }
                         }
@@ -97,6 +106,14 @@ class WalletActivity : AppCompatActivity() {
 
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@WalletActivity,
+                                error?.message,
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
                     }
                 })
         }

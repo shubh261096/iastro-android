@@ -118,6 +118,7 @@ class BookSlotActivity : AppCompatActivity() {
     }
 
     private fun updateWalletBalanceUI() {
+        Utils.showProgress(this@BookSlotActivity, "Please wait...")
         lifecycleScope.launch(Dispatchers.IO) {
             val headers = mutableMapOf<String, String>()
             headers["Content-Type"] = "application/json"
@@ -133,6 +134,9 @@ class BookSlotActivity : AppCompatActivity() {
                 WalletResponseModel::class.java,
                 object : OkHttpNetworkProvider.NetworkListener<WalletResponseModel> {
                     override fun onResponse(response: WalletResponseModel?) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                        }
                         if (response != null) {
                             if (!response.walletBalance?.balance.isNullOrEmpty()) {
                                 this@BookSlotActivity.walletBalance =
@@ -155,6 +159,14 @@ class BookSlotActivity : AppCompatActivity() {
 
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@BookSlotActivity,
+                                error?.message,
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
                     }
                 })
         }
@@ -287,6 +299,9 @@ class BookSlotActivity : AppCompatActivity() {
                 return@launch
             }
 
+            lifecycleScope.launch(Dispatchers.Main) {
+                Utils.showProgress(this@BookSlotActivity, "Please wait...")
+            }
 
             val headerMap = mutableMapOf<String, String>()
             headerMap["Content-Type"] = "application/json"
@@ -316,6 +331,9 @@ class BookSlotActivity : AppCompatActivity() {
                 LoginResponseModel::class.java,
                 object : OkHttpNetworkProvider.NetworkListener<LoginResponseModel> {
                     override fun onResponse(response: LoginResponseModel?) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                        }
                         if (response != null) {
                             Log.i(TAG, "onResponse: $response")
                             lifecycleScope.launch(Dispatchers.Main) {
@@ -334,6 +352,14 @@ class BookSlotActivity : AppCompatActivity() {
 
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Toast.makeText(
+                                this@BookSlotActivity,
+                                error?.message,
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
                     }
                 })
         }

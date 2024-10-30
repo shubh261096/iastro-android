@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -162,6 +164,8 @@ class ProfileActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
+            Utils.showProgress(this@ProfileActivity, "Please wait...")
+
             lifecycleScope.launch(Dispatchers.IO) {
                 val headers = mutableMapOf<String, String>()
                 headers["Content-Type"] = "application/x-www-form-urlencoded"
@@ -189,11 +193,15 @@ class ProfileActivity : AppCompatActivity() {
                     LoginResponseModel::class.java,
                     object : OkHttpNetworkProvider.NetworkListener<LoginResponseModel> {
                         override fun onResponse(response: LoginResponseModel?) {
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                Utils.hideProgress()
+                            }
                             if (response != null) {
                                 if (response.error == false) {
                                     KeyStorePref.putString(AppConstants.KEY_STORE_NAME, name)
                                     KeyStorePref.putString(AppConstants.KEY_STORE_DOB, dob)
-                                    val intent = Intent(this@ProfileActivity, HomeActivity::class.java)
+                                    val intent =
+                                        Intent(this@ProfileActivity, HomeActivity::class.java)
                                     startActivity(intent)
                                     finish()
                                 }
@@ -203,13 +211,25 @@ class ProfileActivity : AppCompatActivity() {
 
                         override fun onError(error: BaseErrorModel?) {
                             Log.i(TAG, "onError: ")
-                            // TODO: Handle Error
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    this@ProfileActivity,
+                                    error?.message,
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                            }
                         }
 
                     })
             }
         }
 
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishAffinity()
+            }
+        })
 
     }
 }

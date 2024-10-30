@@ -2,13 +2,12 @@ package com.iffelse.iastro.utils
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.app.ProgressDialog
 import android.app.TimePickerDialog
 import android.content.Context
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.DatePicker
-import androidx.core.content.ContextCompat.getSystemService
-import com.iffelse.iastro.R
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Base64
@@ -16,6 +15,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+
 
 object Utils {
 
@@ -204,6 +204,37 @@ object Utils {
 
         // If the combinedId exceeds 50 characters, truncate it
         return if (combinedId.length > 50) combinedId.take(50) else combinedId
+    }
+
+    private var progressDialog: ProgressDialog? = null
+
+    fun showProgress(context: Context?, message: String?) {
+        progressDialog = ProgressDialog(context)
+        progressDialog!!.setMessage(message)
+        progressDialog!!.setCanceledOnTouchOutside(false)
+        progressDialog!!.setCancelable(false)
+        progressDialog!!.show()
+    }
+
+    fun hideProgress() {
+        if (progressDialog != null) {
+            if (progressDialog!!.isShowing) {
+                progressDialog!!.dismiss()
+            }
+        }
+    }
+
+    fun parseDate(dateStr: String): Date? {
+        val patterns = arrayOf("yyyy-MM-dd", "yyyy/MM/dd")
+        for (pattern in patterns) {
+            try {
+                val sdf = SimpleDateFormat(pattern, Locale.getDefault())
+                return sdf.parse(dateStr)
+            } catch (e: ParseException) {
+                // Ignore and try the next pattern
+            }
+        }
+        return null // Return null if no pattern matches
     }
 
 

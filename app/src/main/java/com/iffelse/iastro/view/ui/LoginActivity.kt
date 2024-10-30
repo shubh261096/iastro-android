@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -22,9 +23,9 @@ import com.iffelse.iastro.databinding.ActivityLoginBinding
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.LoginResponseModel
 import com.iffelse.iastro.utils.AppConstants
-import com.iffelse.iastro.utils.FirebaseHelper
 import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
+import com.iffelse.iastro.utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -32,8 +33,6 @@ import org.json.JSONObject
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
-
-    private val firebaseHelper = FirebaseHelper()
 
     private val TAG = "LoginActivity"
 
@@ -64,6 +63,7 @@ class LoginActivity : AppCompatActivity() {
                     .show()
                 return@setOnClickListener
             }
+            Utils.showProgress(this@LoginActivity, "Please wait...")
             // Play fade-out animation and hide login section
             val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
             binding.layoutLogin.startAnimation(fadeOut)
@@ -111,13 +111,22 @@ class LoginActivity : AppCompatActivity() {
                     responseType = JSONObject::class.java,
                     object : OkHttpNetworkProvider.NetworkListener<JSONObject> {
                         override fun onResponse(response: JSONObject?) {
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                Utils.hideProgress()
+                            }
                             Log.i("TAG", "onResponse: ${response.toString()}")
                         }
 
                         override fun onError(error: BaseErrorModel?) {
-
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                Toast.makeText(
+                                    this@LoginActivity,
+                                    error?.message,
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                            }
                         }
-
                     })
             }
 
@@ -130,6 +139,7 @@ class LoginActivity : AppCompatActivity() {
                     .show()
                 return@setOnClickListener
             }
+            Utils.showProgress(this@LoginActivity, "Please wait...")
             if (binding.etOtp.text.toString().trim() == otp.toString() || isTestNumber) {
 //                Toast.makeText(this@LoginActivity, "Otp Verified", Toast.LENGTH_SHORT).show()
 
@@ -152,6 +162,9 @@ class LoginActivity : AppCompatActivity() {
                         LoginResponseModel::class.java,
                         object : OkHttpNetworkProvider.NetworkListener<LoginResponseModel> {
                             override fun onResponse(response: LoginResponseModel?) {
+                                lifecycleScope.launch(Dispatchers.Main) {
+                                    Utils.hideProgress()
+                                }
                                 if (response != null) {
                                     Log.i(TAG, "onResponse: $response")
                                     if (response.error == false) {
@@ -202,8 +215,15 @@ class LoginActivity : AppCompatActivity() {
 
                             override fun onError(error: BaseErrorModel?) {
                                 Log.i(TAG, "onError: ")
+                                lifecycleScope.launch(Dispatchers.Main) {
+                                    Toast.makeText(
+                                        this@LoginActivity,
+                                        error?.message,
+                                        Toast.LENGTH_SHORT
+                                    )
+                                        .show()
+                                }
                             }
-
                         })
                 }
             } else {
@@ -211,6 +231,12 @@ class LoginActivity : AppCompatActivity() {
             }
         }
         setupClickableText()
+
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                finishAffinity()
+            }
+        })
     }
 
     private fun setupClickableText() {
