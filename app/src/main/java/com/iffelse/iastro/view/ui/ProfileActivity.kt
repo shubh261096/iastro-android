@@ -212,6 +212,7 @@ class ProfileActivity : AppCompatActivity() {
                         override fun onError(error: BaseErrorModel?) {
                             Log.i(TAG, "onError: ")
                             lifecycleScope.launch(Dispatchers.Main) {
+                                Utils.hideProgress()
                                 Toast.makeText(
                                     this@ProfileActivity,
                                     error?.message,

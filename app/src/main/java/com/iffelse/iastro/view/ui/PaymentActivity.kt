@@ -73,6 +73,7 @@ class PaymentActivity : AppCompatActivity(),
     }
 
     private fun createOrderRequest(amount: Double) {
+        Utils.showProgress(this@PaymentActivity, "Please wait...")
         lifecycleScope.launch(Dispatchers.IO) {
             val headers = mutableMapOf<String, String>()
             headers["Content-Type"] = "application/json"
@@ -101,6 +102,7 @@ class PaymentActivity : AppCompatActivity(),
                                     merchantKey = response.merchantKey
                                 }
                                 lifecycleScope.launch(Dispatchers.Main) {
+                                    Utils.hideProgress()
                                     doRazorPay()
                                 }
                             }
@@ -111,6 +113,7 @@ class PaymentActivity : AppCompatActivity(),
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
                         lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
                             Toast.makeText(
                                 this@PaymentActivity,
                                 error?.message ?: "Something went wrong!",
@@ -126,6 +129,7 @@ class PaymentActivity : AppCompatActivity(),
     }
 
     private fun verifyOrderRequest(paymentId: String, signature: String) {
+        Utils.showProgress(this@PaymentActivity, "Please wait...")
         lifecycleScope.launch(Dispatchers.IO) {
             val headers = mutableMapOf<String, String>()
             headers["Content-Type"] = "application/json"
@@ -146,6 +150,9 @@ class PaymentActivity : AppCompatActivity(),
                 CommonResponseModel::class.java,
                 object : OkHttpNetworkProvider.NetworkListener<CommonResponseModel> {
                     override fun onResponse(response: CommonResponseModel?) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                        }
                         if (response != null) {
                             if (response.error == false) {
                                 // Update wallet balance text view
@@ -174,6 +181,7 @@ class PaymentActivity : AppCompatActivity(),
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
                         lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
                             Toast.makeText(this@PaymentActivity, error?.message, Toast.LENGTH_SHORT)
                                 .show()
                             finish()

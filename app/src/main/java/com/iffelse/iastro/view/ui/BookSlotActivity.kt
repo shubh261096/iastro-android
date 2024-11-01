@@ -160,6 +160,7 @@ class BookSlotActivity : AppCompatActivity() {
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
                         lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
                             Toast.makeText(
                                 this@BookSlotActivity,
                                 error?.message,
@@ -353,6 +354,7 @@ class BookSlotActivity : AppCompatActivity() {
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
                         lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
                             Toast.makeText(
                                 this@BookSlotActivity,
                                 error?.message,

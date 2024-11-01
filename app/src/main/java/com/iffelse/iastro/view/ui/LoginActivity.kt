@@ -16,6 +16,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.iffelse.iastro.BuildConfig
 import com.iffelse.iastro.R
@@ -119,6 +120,7 @@ class LoginActivity : AppCompatActivity() {
 
                         override fun onError(error: BaseErrorModel?) {
                             lifecycleScope.launch(Dispatchers.Main) {
+                                Utils.hideProgress()
                                 Toast.makeText(
                                     this@LoginActivity,
                                     error?.message,
@@ -215,6 +217,7 @@ class LoginActivity : AppCompatActivity() {
 
                             override fun onError(error: BaseErrorModel?) {
                                 Log.i(TAG, "onError: ")
+                                Utils.hideProgress()
                                 lifecycleScope.launch(Dispatchers.Main) {
                                     Toast.makeText(
                                         this@LoginActivity,
@@ -273,7 +276,7 @@ class LoginActivity : AppCompatActivity() {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         spannableString.setSpan(
-            ForegroundColorSpan(resources.getColor(R.color.orange, theme)),
+            ForegroundColorSpan(ContextCompat.getColor(this, R.color.orange)),
             termsStart,
             termsEnd,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -288,7 +291,8 @@ class LoginActivity : AppCompatActivity() {
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         spannableString.setSpan(
-            ForegroundColorSpan(resources.getColor(R.color.orange, theme)), privacyStart,
+            ForegroundColorSpan(ContextCompat.getColor(this, R.color.orange)),
+            privacyStart,
             privacyEnd,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         )

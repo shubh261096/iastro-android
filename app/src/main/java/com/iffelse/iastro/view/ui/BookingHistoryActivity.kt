@@ -95,6 +95,7 @@ class BookingHistoryActivity : AppCompatActivity() {
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
                         lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
                             Toast.makeText(
                                 this@BookingHistoryActivity,
                                 error?.message,
