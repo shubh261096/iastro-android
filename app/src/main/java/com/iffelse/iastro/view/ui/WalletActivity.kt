@@ -5,19 +5,23 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.iffelse.iastro.BuildConfig
 import com.iffelse.iastro.databinding.ActivityWalletBinding
 import com.iffelse.iastro.model.BaseErrorModel
+import com.iffelse.iastro.model.response.PaymentHistoryResponseModel
 import com.iffelse.iastro.model.response.WalletResponseModel
 import com.iffelse.iastro.utils.AppConstants
 import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
+import com.iffelse.iastro.view.adapter.PaymentHistoryAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -25,6 +29,7 @@ class WalletActivity : AppCompatActivity() {
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
     private lateinit var binding: ActivityWalletBinding
+    private lateinit var paymentHistoryAdapter: PaymentHistoryAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,6 +48,11 @@ class WalletActivity : AppCompatActivity() {
 
         // Update wallet balance UI
         updateWalletBalanceUI()
+
+        binding.rvTransactions.layoutManager =
+            LinearLayoutManager(this@WalletActivity)
+
+        fetchWalletTransaction()
 
         // Handle Add Money button click
         binding.btnAddMoney.setOnClickListener {
@@ -99,6 +109,53 @@ class WalletActivity : AppCompatActivity() {
                                             append("Current Wallet Balance: Rs. ")
                                             append(response.walletBalance?.balance)
                                         }
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onError(error: BaseErrorModel?) {
+                        Log.i(TAG, "onError: ")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                            Toast.makeText(
+                                this@WalletActivity,
+                                error?.message,
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                    }
+                })
+        }
+    }
+
+    private fun fetchWalletTransaction() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val headers = mutableMapOf<String, String>()
+            headers["Content-Type"] = "application/json"
+            headers["Authorization"] =
+                Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
+            OkHttpNetworkProvider.get(
+                BuildConfig.BASE_URL + "wallet/payment_history/" + KeyStorePref.getString(
+                    AppConstants.KEY_STORE_USER_ID
+                ),
+                headers,
+                null,
+                null,
+                PaymentHistoryResponseModel::class.java,
+                object : OkHttpNetworkProvider.NetworkListener<PaymentHistoryResponseModel> {
+                    override fun onResponse(response: PaymentHistoryResponseModel?) {
+                        if (response != null) {
+                            lifecycleScope.launch(Dispatchers.Main) {
+
+                                if (!response.paymentHistory.isNullOrEmpty()) {
+                                    paymentHistoryAdapter =
+                                        PaymentHistoryAdapter(response.paymentHistory)
+                                    binding.rvTransactions.adapter = paymentHistoryAdapter
+                                    binding.clPaymentHistory.visibility = View.VISIBLE
+                                } else {
+                                    binding.clPaymentHistory.visibility = View.GONE
                                 }
                             }
                         }
