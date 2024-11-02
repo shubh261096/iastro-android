@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
-class ProfileActivity : AppCompatActivity() {
+class ProfileActivity : BaseActivity() {
 
     private lateinit var binding: ActivityProfileBinding
 

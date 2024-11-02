@@ -20,7 +20,7 @@ import com.iffelse.iastro.view.adapter.BookingHistoryAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class BookingHistoryActivity : AppCompatActivity() {
+class BookingHistoryActivity : BaseActivity() {
 
     private lateinit var binding: ActivityBookingHistoryBinding
     private lateinit var bookingHistoryAdapter: BookingHistoryAdapter

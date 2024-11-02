@@ -5,6 +5,8 @@ import android.app.DatePickerDialog
 import android.app.ProgressDialog
 import android.app.TimePickerDialog
 import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkInfo
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.DatePicker
@@ -150,8 +152,10 @@ object Utils {
     }
 
     fun convertTo24HourFormat(timeIn12HourFormat: String): String {
-        val inputFormat = SimpleDateFormat("hh:mm a", Locale.getDefault()) // Input format: 12-hour with AM/PM
-        val outputFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault()) // Output format: 24-hour with seconds
+        val inputFormat =
+            SimpleDateFormat("hh:mm a", Locale.getDefault()) // Input format: 12-hour with AM/PM
+        val outputFormat =
+            SimpleDateFormat("HH:mm:ss", Locale.getDefault()) // Output format: 24-hour with seconds
 
         return try {
             // Parse the input time string into a Date object
@@ -235,6 +239,13 @@ object Utils {
             }
         }
         return null // Return null if no pattern matches
+    }
+
+
+    fun getConnectivityStatus(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
+        return activeNetwork != null && activeNetwork.state == NetworkInfo.State.CONNECTED
     }
 
 

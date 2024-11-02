@@ -25,7 +25,7 @@ import com.iffelse.iastro.view.adapter.PaymentHistoryAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class WalletActivity : AppCompatActivity() {
+class WalletActivity : BaseActivity() {
 
     private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
     private lateinit var binding: ActivityWalletBinding

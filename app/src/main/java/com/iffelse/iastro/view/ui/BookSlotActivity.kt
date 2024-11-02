@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.time.LocalTime
 
-class BookSlotActivity : AppCompatActivity() {
+class BookSlotActivity : BaseActivity() {
 
     private var selectedDuration: Int = 0
     private var walletBalance: Double = 0.00

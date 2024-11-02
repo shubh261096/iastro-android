@@ -17,7 +17,7 @@ import com.iffelse.iastro.databinding.ActivityHomeBinding
 import com.iffelse.iastro.utils.AppConstants
 import com.iffelse.iastro.view.fragment.CallFragment
 
-class HomeActivity : AppCompatActivity(), HomeFragment.OnCardClickListener {
+class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
 
     private lateinit var binding: ActivityHomeBinding
 
