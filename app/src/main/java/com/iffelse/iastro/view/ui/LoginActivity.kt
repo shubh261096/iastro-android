@@ -15,7 +15,6 @@ import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.iffelse.iastro.BuildConfig
@@ -64,7 +63,6 @@ class LoginActivity : BaseActivity() {
                     .show()
                 return@setOnClickListener
             }
-            Utils.showProgress(this@LoginActivity, "Please wait...")
             // Play fade-out animation and hide login section
             val fadeOut = AnimationUtils.loadAnimation(this, R.anim.fade_out)
             binding.layoutLogin.startAnimation(fadeOut)
@@ -81,6 +79,7 @@ class LoginActivity : BaseActivity() {
                 isTestNumber = true
                 return@setOnClickListener
             }
+            Utils.showProgress(this@LoginActivity, "Please wait...")
 
             val jsonObject = JSONObject(
                 "{" +
