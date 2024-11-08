@@ -7,14 +7,15 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.activity.OnBackPressedCallback
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.google.firebase.messaging.FirebaseMessaging
 import com.iffelse.iastro.view.fragment.HomeFragment
 import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.R
 import com.iffelse.iastro.view.fragment.TrendingFragment
 import com.iffelse.iastro.databinding.ActivityHomeBinding
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.Utils
 import com.iffelse.iastro.view.fragment.CallFragment
 
 class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
@@ -91,6 +92,17 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
             }
         })
 
+        subscribeToZodiacSignTopic()
+    }
+
+    private fun subscribeToZodiacSignTopic() {
+        val dateOfBirth = KeyStorePref.getString(AppConstants.KEY_STORE_DOB)
+        // Example Date of Birth
+        val dob = dateOfBirth?.let { Utils.parseDate(it) }
+        val sign = dob?.let { Utils.getSunSign(it) }
+        sign?.let {
+            FirebaseMessaging.getInstance().subscribeToTopic(it.lowercase())
+        }
     }
 
     private fun loadFragment(fragment: Fragment) {

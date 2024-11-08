@@ -23,6 +23,16 @@ import java.net.URL
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
+    companion object {
+        private const val TAG = "MyFirebaseMessagingServ"
+        private const val TITLE = "title"
+        private const val EMPTY = ""
+        private const val MESSAGE = "message"
+        private const val IMAGE = "image"
+        private const val ACTION = "action"
+        private const val DATA = "data"
+        private const val ACTION_DESTINATION = "action_destination"
+    }
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -31,17 +41,36 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        Log.i("TAG", "onMessageReceived: $remoteMessage")
+        Log.i("TAG", "onMessageReceived: ${remoteMessage.notification?.title}")
 
-        // Check if message contains a notification payload
-        remoteMessage.notification?.let {
-            val title = it.title ?: "iastro"
-            val body = it.body ?: "You have a new message."
-            val imageUrl =
-                remoteMessage.data["image"]  // Get the image URL from the data payload if sent
+        if (remoteMessage.data.isNotEmpty()) {
+            Log.d(TAG, "Message data payload: " + remoteMessage.data)
+            val data = remoteMessage.data
+            handleData(data)
+        } else if (remoteMessage.notification != null) {
+            // Check if message contains a notification payload
+            remoteMessage.notification?.let {
+                val title = it.title ?: "iastro"
+                val body = it.body ?: "You have a new message."
+                val imageUrl =
+                    remoteMessage.data["image"]  // Get the image URL from the data payload if sent
 
-            // Show notification
-            sendNotification(title, body, imageUrl)
+                // Show notification
+                sendNotification(title, body, imageUrl)
+            }
+        }
+    }
+
+    private fun handleData(data: Map<String, String>) {
+        Log.i(TAG, "handleData: Inside this")
+        val title = data[TITLE]
+        val message = data[MESSAGE]
+        val iconUrl = data[IMAGE]
+        val action = data[ACTION]
+        val actionDestination = data[ACTION_DESTINATION]
+
+        title?.let {
+            sendNotification(title, message!!, iconUrl)
         }
     }
 
@@ -49,12 +78,29 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val channelId = "default_channel"
         val notificationId = 1
 
-        // Create an intent to open the app when the notification is clicked
-        val intent = Intent(this, HomeActivity::class.java)  // Change this to your main activity
+        // For Android O and above, create the notification channel
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId, "Default Channel",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Default Channel Notifications"
+            }
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
+        }
+
+        // Intent to open the app when notification is clicked
+        val intent = Intent(this, HomeActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
 
         // Use FLAG_IMMUTABLE
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
 
 
         // Create a notification builder
@@ -79,26 +125,16 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             }
         }
 
-        // Show the notification
-        with(NotificationManagerCompat.from(this)) {
-            if (ActivityCompat.checkSelfPermission(
-                    this@MyFirebaseMessagingService,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return
+        // Check permissions if on Android 13+ (TIRAMISU) and notify
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            with(NotificationManagerCompat.from(this)) {
+                notify(notificationId, notificationBuilder.build())
             }
-            notify(notificationId, notificationBuilder.build())
-        }
-
-        // For Android O and above, create a notification channel
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId, "Default Channel",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.createNotificationChannel(channel)
         }
     }
 
