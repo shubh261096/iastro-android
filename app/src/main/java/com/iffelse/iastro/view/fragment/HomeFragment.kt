@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
-import com.google.firebase.storage.FirebaseStorage
 import com.iffelse.iastro.BuildConfig
 import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.R
@@ -22,6 +21,7 @@ import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.AstrologerResponseModel
 import com.iffelse.iastro.utils.AppConstants
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
+import com.iffelse.iastro.utils.RemoteConfigUtils
 import com.iffelse.iastro.utils.Utils
 import com.iffelse.iastro.view.ui.BookSlotActivity
 import kotlinx.coroutines.Dispatchers
@@ -68,30 +68,20 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize Firebase Storage reference
-        val storageReferenceGif = FirebaseStorage.getInstance().reference.child("homepage.gif")
-        val storageReference = FirebaseStorage.getInstance().reference.child("homepage.png")
+        // Fetch Homepage Background
+        val configKey = "homepage_background_url"
+        val configDefaultValue =
+            "https://www.apsdeoria.com/iastro_web/dist/img/app_content/homepage.gif"
 
-        // Get the URL for the image
-        storageReference.downloadUrl.addOnSuccessListener { uri ->
-            // Use Glide to load the image into an ImageView
-            Glide.with(context)
-                .load(uri)
-                .placeholder(R.drawable.astrology_background)
-                .into(binding.imageView) // Replace 'binding.imageView' with your ImageView ID
-        }.addOnFailureListener { exception ->
-            // Handle any errors
-            Log.e("Firebase", "Error loading image: ", exception)
-            // Get the URL for the image
-            storageReferenceGif.downloadUrl.addOnSuccessListener { uri ->
-                // Use Glide to load the image into an ImageView
+        // Fetch the data using the specified key
+        RemoteConfigUtils.fetchData(configKey, configDefaultValue) { dataString ->
+            // Use the fetched data string here
+            println("Remote Config Fetched Value: $dataString")
+            if (dataString.isNotEmpty()) {
                 Glide.with(context)
-                    .load(uri)
+                    .load(dataString)
                     .placeholder(R.drawable.astrology_background)
                     .into(binding.imageView) // Replace 'binding.imageView' with your ImageView ID
-            }.addOnFailureListener { exception ->
-                // Handle any errors
-                Log.e("Firebase", "Error loading image: ", exception)
             }
         }
 
@@ -135,9 +125,18 @@ class HomeFragment : Fragment() {
                                                 requireActivity(),
                                                 object : AstrologerAdapter.CLickListener {
                                                     override fun onClick(position: Int) {
-                                                        val intent = Intent(activity, BookSlotActivity::class.java)
-                                                        intent.putExtra("astrologer_phone", response.data[position]?.phoneNumber)
-                                                        intent.putExtra("final_rate", response.data[position]?.finalRate)
+                                                        val intent = Intent(
+                                                            activity,
+                                                            BookSlotActivity::class.java
+                                                        )
+                                                        intent.putExtra(
+                                                            "astrologer_phone",
+                                                            response.data[position]?.phoneNumber
+                                                        )
+                                                        intent.putExtra(
+                                                            "final_rate",
+                                                            response.data[position]?.finalRate
+                                                        )
                                                         startActivity(intent)
                                                     }
                                                 })
