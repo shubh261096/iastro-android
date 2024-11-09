@@ -1,19 +1,19 @@
 package com.iffelse.iastro.view.ui
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.Window
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import com.iffelse.iastro.R
 import com.iffelse.iastro.BuildConfig
-import com.iffelse.iastro.utils.KeyStorePref
-import com.iffelse.iastro.view.adapter.SlotAdapter
-import com.iffelse.iastro.view.adapter.MinutesAdapter
-import com.iffelse.iastro.view.adapter.TimeSlotsAdapter
 import com.iffelse.iastro.databinding.ActivitySlotBookingsBinding
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.LoginResponseModel
@@ -24,12 +24,17 @@ import com.iffelse.iastro.model.response.slots.AllSlotsResponseModel
 import com.iffelse.iastro.model.response.slots.BookingsItem
 import com.iffelse.iastro.model.response.slots.TimeSlot
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
+import com.iffelse.iastro.view.adapter.MinutesAdapter
+import com.iffelse.iastro.view.adapter.SlotAdapter
+import com.iffelse.iastro.view.adapter.TimeSlotsAdapter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.time.LocalTime
+
 
 class BookSlotActivity : BaseActivity() {
 
@@ -105,11 +110,16 @@ class BookSlotActivity : BaseActivity() {
             override fun onMinuteSelected(minute: Int) {
                 this@BookSlotActivity.isFreeUser = minute == 2
                 selectedDuration = minute
-                binding.timeSlotLayout.visibility = View.VISIBLE
-                loadAvailableSlots()
+                if (isFreeUser) {
+                    binding.bookSlotButton.visibility = View.VISIBLE
+                    binding.timeSlotLayout.visibility = View.GONE
+                } else {
+                    binding.bookSlotButton.visibility = View.GONE
+                    binding.timeSlotLayout.visibility = View.VISIBLE
+                    loadAvailableSlots()
+                }
                 binding.rvTimeSlots.visibility = View.GONE
                 binding.tvSlotsTime.visibility = View.GONE
-                binding.bookSlotButton.visibility = View.GONE
             }
         }
 
@@ -281,7 +291,7 @@ class BookSlotActivity : BaseActivity() {
                 return@launch
             }
 
-            if (this@BookSlotActivity.slotId.isEmpty()) {
+            if (this@BookSlotActivity.slotId.isEmpty() && !isFreeUser) {
                 return@launch
             }
 
@@ -294,7 +304,7 @@ class BookSlotActivity : BaseActivity() {
                 return@launch
             }
 
-            if (this@BookSlotActivity.selectedStartTime.isEmpty()) {
+            if (this@BookSlotActivity.selectedStartTime.isEmpty() && !isFreeUser) {
                 Toast.makeText(this@BookSlotActivity, "Please select the slot", Toast.LENGTH_SHORT)
                     .show()
                 return@launch
@@ -311,14 +321,16 @@ class BookSlotActivity : BaseActivity() {
 
             val jsonObjectBody = JSONObject()
             jsonObjectBody.put("astrologer_phone", this@BookSlotActivity.astrologerPhoneNumber)
-            jsonObjectBody.put("slot_id", this@BookSlotActivity.slotId)
+            if (!isFreeUser)
+                jsonObjectBody.put("slot_id", this@BookSlotActivity.slotId)
             jsonObjectBody.put("user_phone", KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID))
             jsonObjectBody.put("call_duration_minutes", this@BookSlotActivity.selectedDuration)
             jsonObjectBody.put(
                 "total_cost",
                 (this@BookSlotActivity.selectedDuration * this@BookSlotActivity.astrologerRate)
             )
-            jsonObjectBody.put("booked_start_time", this@BookSlotActivity.selectedStartTime)
+            if (!isFreeUser)
+                jsonObjectBody.put("booked_start_time", this@BookSlotActivity.selectedStartTime)
             if (this@BookSlotActivity.isFreeUser)
                 jsonObjectBody.put("is_free", isFreeUser)
 
@@ -338,16 +350,8 @@ class BookSlotActivity : BaseActivity() {
                         if (response != null) {
                             Log.i(TAG, "onResponse: $response")
                             lifecycleScope.launch(Dispatchers.Main) {
-                                Toast.makeText(
-                                    this@BookSlotActivity,
-                                    response.message ?: "Something went wrong",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                val intent = Intent(this@BookSlotActivity, HomeActivity::class.java)
-                                startActivity(intent)
-                                finish()
+                                showDialog()
                             }
-
                         }
                     }
 
@@ -357,14 +361,52 @@ class BookSlotActivity : BaseActivity() {
                             Utils.hideProgress()
                             Toast.makeText(
                                 this@BookSlotActivity,
-                                error?.message,
+                                error?.message ?: "Something went wrong",
                                 Toast.LENGTH_SHORT
-                            )
-                                .show()
+                            ).show()
+
                         }
                     }
                 })
         }
+    }
+
+    private fun showDialog() {
+        // Create a new dialog
+        val dialog = Dialog(this)
+
+        // Hide the default title
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+
+        // Set custom layout for the dialog
+        dialog.setContentView(R.layout.dialog_book_slots)
+
+        // Set dialog properties
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
+        // Set dialog background to transparent for corner radius to be visible
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent);
+
+        // Find views from the custom layout
+        val dialogButton: Button = dialog.findViewById(R.id.btnOkay)
+        val tvSuccess: TextView = dialog.findViewById(R.id.tvSuccess)
+
+        if (isFreeUser) {
+            tvSuccess.text = "You will receive a call back from us shortly!"
+        } else {
+            tvSuccess.text = "Booking successful. \nYou will receive a call from our astrologer"
+        }
+
+        // Set click listener for dialog button
+        dialogButton.setOnClickListener { // Do something with the input text, if needed
+            dialog.dismiss()
+            val intent = Intent(this@BookSlotActivity, HomeActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
+        // Show the dialog
+        dialog.show()
     }
 
     // Function to generate time intervals
