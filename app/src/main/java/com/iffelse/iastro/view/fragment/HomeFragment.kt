@@ -78,10 +78,13 @@ class HomeFragment : Fragment() {
             // Use the fetched data string here
             println("Remote Config Fetched Value: $dataString")
             if (dataString.isNotEmpty()) {
-                Glide.with(context)
-                    .load(dataString)
-                    .placeholder(R.drawable.astrology_background)
-                    .into(binding.imageView) // Replace 'binding.imageView' with your ImageView ID
+                // Check if fragment is in a valid state before loading images
+                if (isAdded && !isDetached) {
+                    Glide.with(context)
+                        .load(dataString)
+                        .placeholder(R.drawable.astrology_background)
+                        .into(binding.imageView) // Replace 'binding.imageView' with your ImageView ID
+                }
             }
         }
 
@@ -145,7 +148,8 @@ class HomeFragment : Fragment() {
 
 
                                     lifecycleScope.launch(Dispatchers.Main) {
-                                        binding.recyclerViewAstrologers.adapter = astrologerAdapter
+                                        binding.recyclerViewAstrologers.adapter =
+                                            astrologerAdapter
                                     }
                                 }
                             }
