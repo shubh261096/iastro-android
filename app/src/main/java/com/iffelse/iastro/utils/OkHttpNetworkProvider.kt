@@ -5,6 +5,7 @@ package com.iffelse.iastro.utils
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.iffelse.iastro.BuildConfig
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.ErrorBody
 import okhttp3.Call
@@ -37,9 +38,12 @@ object OkHttpNetworkProvider {
 
     // Create an instance of HttpLoggingInterceptor
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
-        // Set the desired log level
-        level =
-            HttpLoggingInterceptor.Level.BODY // You can also use Level.BASIC, Level.HEADERS, or Level.NONE
+        // Set log level based on whether the app is in debug or release mode
+        level = if (BuildConfig.DEBUG) {
+            HttpLoggingInterceptor.Level.BODY // Detailed logging in debug mode
+        } else {
+            HttpLoggingInterceptor.Level.NONE // No logging in release mode
+        }
     }
 
     // Create OkHttpClient with the logging interceptor
