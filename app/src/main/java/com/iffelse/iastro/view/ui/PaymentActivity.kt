@@ -182,7 +182,7 @@ class PaymentActivity : AppCompatActivity(),
                         Log.i(TAG, "onError: ")
                         lifecycleScope.launch(Dispatchers.Main) {
                             Utils.hideProgress()
-                            Toast.makeText(this@PaymentActivity, error?.message, Toast.LENGTH_SHORT)
+                            Toast.makeText(this@PaymentActivity, error?.message ?: "Something went wrong!", Toast.LENGTH_SHORT)
                                 .show()
                             finish()
                         }

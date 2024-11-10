@@ -4,12 +4,16 @@ import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.ProgressDialog
 import android.app.TimePickerDialog
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.NetworkInfo
+import android.net.Uri
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.DatePicker
+import android.widget.Toast
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Base64
@@ -246,6 +250,30 @@ object Utils {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork: NetworkInfo? = cm.activeNetworkInfo
         return activeNetwork != null && activeNetwork.state == NetworkInfo.State.CONNECTED
+    }
+
+    fun openWhatsApp(context: Context, phoneNumber: String) {
+        val whatsappUri = "https://api.whatsapp.com/send?phone=$phoneNumber"
+        try {
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.data = Uri.parse(whatsappUri)
+            intent.setPackage("com.whatsapp")
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(whatsappUri))
+            context.startActivity(browserIntent)
+        }
+    }
+
+    // Generic function to open app or browser link
+     fun openLink(context: Context, appUri: String, webUrl: String) {
+        try {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(appUri))
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(webUrl))
+            context.startActivity(browserIntent)
+        }
     }
 
 

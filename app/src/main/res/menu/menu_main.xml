@@ -6,7 +6,4 @@
         android:icon="@drawable/wallet"
         android:title="Wallet"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/action_history"
-        android:title="History" />
 </menu>

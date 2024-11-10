@@ -8,21 +8,22 @@ import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.google.firebase.messaging.FirebaseMessaging
 import com.iffelse.iastro.BuildConfig
-import com.iffelse.iastro.view.fragment.HomeFragment
-import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.R
-import com.iffelse.iastro.view.fragment.TrendingFragment
 import com.iffelse.iastro.databinding.ActivityHomeBinding
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.CommonResponseModel
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
 import com.iffelse.iastro.view.fragment.CallFragment
+import com.iffelse.iastro.view.fragment.HomeFragment
+import com.iffelse.iastro.view.fragment.TrendingFragment
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -43,6 +44,16 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.title = ""
+
+        // Set up the click listener for the custom button
+        binding.toggle.setOnClickListener {
+            if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                binding.drawerLayout.closeDrawer(GravityCompat.START)
+            } else {
+                binding.drawerLayout.openDrawer(GravityCompat.START)
+            }
+        }
+
 
         if (KeyStorePref.getBoolean(AppConstants.KEY_STORE_IS_LOGIN)) {
             if (KeyStorePref.getString(AppConstants.KEY_STORE_NAME).isNullOrEmpty()) {
@@ -73,14 +84,18 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
                     binding.toolbarTitle.text = resources.getText(R.string.app_name)
                     binding.toolbarImage.visibility = View.VISIBLE
                     // Load rotate animation from XML and apply to the rotating image
-                    val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_logo)
-                    binding.toolbarImage.startAnimation(rotateAnimation)
+                    binding.toolbarImage.startAnimation(
+                        AnimationUtils.loadAnimation(
+                            this,
+                            R.anim.rotate_logo
+                        )
+                    )
                     loadFragment(HomeFragment())
                     true
                 }
 
                 R.id.nav_trending -> {
-                    binding.toolbarTitle.text = "Trending"
+                    binding.toolbarTitle.text = resources.getText(R.string.trending)
                     binding.toolbarImage.clearAnimation()
                     binding.toolbarImage.visibility = View.GONE
                     loadFragment(TrendingFragment())
@@ -88,7 +103,7 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
                 }
 
                 R.id.nav_call -> {
-                    binding.toolbarTitle.text = "Call with Astrologer"
+                    binding.toolbarTitle.text = resources.getText(R.string.call_with_astrologer)
                     binding.toolbarImage.clearAnimation()
                     binding.toolbarImage.visibility = View.GONE
                     loadFragment(CallFragment())
@@ -101,12 +116,72 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
 
         onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                finishAffinity()
+                if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    binding.drawerLayout.closeDrawer(GravityCompat.START)
+                } else {
+                    finishAffinity()
+                }
             }
         })
 
         subscribeToZodiacSignTopic()
         updateFcmTokenApi()
+        updateDrawerUI()
+    }
+
+    private fun updateDrawerUI() {
+        binding.includeDrawerLayout.profileName.text =
+            KeyStorePref.getString(AppConstants.KEY_STORE_NAME)
+
+        binding.includeDrawerLayout.tvCustomerSupport.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            val whatsappNumber = "917827515429"
+            Utils.openWhatsApp(this, whatsappNumber)
+        }
+
+        binding.includeDrawerLayout.whatsappIcon.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            val whatsappNumber = "917827515429"
+            Utils.openWhatsApp(this, whatsappNumber)
+        }
+
+        binding.includeDrawerLayout.facebookIcon.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            val facebookUrl = "https://www.facebook.com/iastroorg"
+            val facebookAppUri = "fb://facewebmodal/f?href=$facebookUrl"
+            Utils.openLink(this, facebookAppUri, facebookUrl)
+        }
+
+        binding.includeDrawerLayout.instagramIcon.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            val instagramUrl = "https://www.instagram.com/iastroorg/"
+            val instagramAppUri = "http://instagram.com/_u/iastroorg"
+            Utils.openLink(this, instagramAppUri, instagramUrl)
+        }
+
+        binding.includeDrawerLayout.youtubeIcon.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            val youtubeAppUri = "vnd.youtube://channel/UC60rqPVnAkn_t9naR9M81rA"
+            val youtubeWebUrl = "https://www.youtube.com/channel/UC60rqPVnAkn_t9naR9M81rA"
+            Utils.openLink(this, youtubeAppUri, youtubeWebUrl)
+        }
+
+        binding.includeDrawerLayout.tvWallet.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            val intent = Intent(this, WalletActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.includeDrawerLayout.tvOrderHistory.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            val intent = Intent(this, BookingHistoryActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.includeDrawerLayout.tvTalkWithAstrologer.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            binding.bottomNavigation.selectedItemId = R.id.nav_call
+        }
     }
 
     private fun subscribeToZodiacSignTopic() {
@@ -191,14 +266,6 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_history -> {
-                // Handle Settings action
-                // Stay on the splash screen for 3 seconds before transitioning to the next screen
-                val intent = Intent(this, BookingHistoryActivity::class.java)
-                startActivity(intent)
-                true
-            }
-
             R.id.action_wallet -> {
                 // Handle Settings action
                 // Stay on the splash screen for 3 seconds before transitioning to the next screen
