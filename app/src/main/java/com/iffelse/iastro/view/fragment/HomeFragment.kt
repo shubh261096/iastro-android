@@ -27,7 +27,6 @@ import com.iffelse.iastro.view.ui.BookSlotActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Suppress("NAME_SHADOWING")
 class HomeFragment : Fragment() {
 
     private lateinit var binding: FragmentHomeBinding
@@ -114,7 +113,7 @@ class HomeFragment : Fragment() {
                 AstrologerResponseModel::class.java,
                 object : OkHttpNetworkProvider.NetworkListener<AstrologerResponseModel> {
                     override fun onResponse(response: AstrologerResponseModel?) {
-                        if (response != null) {
+                        if (isAdded && !isDetached && response != null) {
                             if (response.error == false) {
                                 if (response.data != null) {
                                     if (response.data.isEmpty())
@@ -159,7 +158,7 @@ class HomeFragment : Fragment() {
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
                         lifecycleScope.launch(Dispatchers.Main) {
-                            Toast.makeText(activity, error?.message, Toast.LENGTH_SHORT)
+                            Toast.makeText(activity, error?.message ?: "Something went wrong", Toast.LENGTH_SHORT)
                                 .show()
                         }
                     }

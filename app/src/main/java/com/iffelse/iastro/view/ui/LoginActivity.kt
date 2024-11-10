@@ -114,7 +114,7 @@ class LoginActivity : BaseActivity() {
                             lifecycleScope.launch(Dispatchers.Main) {
                                 Utils.hideProgress()
                             }
-                            Log.i("TAG", "onResponse: ${response.toString()}")
+//                            Log.i("TAG", "onResponse: ${response.toString()}")
                         }
 
                         override fun onError(error: BaseErrorModel?) {
