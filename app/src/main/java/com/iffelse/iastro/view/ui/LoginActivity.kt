@@ -122,7 +122,7 @@ class LoginActivity : BaseActivity() {
                                 Utils.hideProgress()
                                 Toast.makeText(
                                     this@LoginActivity,
-                                    error?.message,
+                                    error?.message ?: "",
                                     Toast.LENGTH_SHORT
                                 )
                                     .show()

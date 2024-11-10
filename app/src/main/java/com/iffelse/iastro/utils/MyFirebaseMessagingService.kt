@@ -36,8 +36,17 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
-        Log.i("TAG", "onNewToken: $token" )
+        Log.i("TAG", "onNewToken: $token")
+        if (KeyStorePref.getBoolean(AppConstants.KEY_STORE_IS_FCM_TOKEN_SENT)) {
+            if (!KeyStorePref.getString(AppConstants.KEY_STORE_FCM_TOKEN).equals(token)) {
+                KeyStorePref.putBoolean(AppConstants.KEY_STORE_IS_FCM_TOKEN_SENT, false)
+            }
+        } else {
+            KeyStorePref.putBoolean(AppConstants.KEY_STORE_IS_FCM_TOKEN_SENT, false)
+        }
+        KeyStorePref.putString(AppConstants.KEY_STORE_FCM_TOKEN, token)
     }
+
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 

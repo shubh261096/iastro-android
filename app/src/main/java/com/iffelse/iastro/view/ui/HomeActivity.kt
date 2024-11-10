@@ -2,25 +2,38 @@ package com.iffelse.iastro.view.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.google.firebase.messaging.FirebaseMessaging
+import com.iffelse.iastro.BuildConfig
 import com.iffelse.iastro.view.fragment.HomeFragment
 import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.R
 import com.iffelse.iastro.view.fragment.TrendingFragment
 import com.iffelse.iastro.databinding.ActivityHomeBinding
+import com.iffelse.iastro.model.BaseErrorModel
+import com.iffelse.iastro.model.response.CommonResponseModel
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
 import com.iffelse.iastro.view.fragment.CallFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.json.JSONObject
 
 class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
 
     private lateinit var binding: ActivityHomeBinding
+
+    companion object {
+        private const val TAG = "HomeActivity"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,6 +106,7 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
         })
 
         subscribeToZodiacSignTopic()
+        updateFcmTokenApi()
     }
 
     private fun subscribeToZodiacSignTopic() {
@@ -104,6 +118,57 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
             FirebaseMessaging.getInstance().subscribeToTopic(it.lowercase())
         }
     }
+
+    private fun updateFcmTokenApi() {
+        if (KeyStorePref.getBoolean(AppConstants.KEY_STORE_IS_LOGIN) && !KeyStorePref.getString(
+                AppConstants.KEY_STORE_USER_ID
+            ).isNullOrEmpty() && !KeyStorePref.getBoolean(AppConstants.KEY_STORE_IS_FCM_TOKEN_SENT)
+        ) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val headerMap = mutableMapOf<String, String>()
+                headerMap["Content-Type"] = "application/x-www-form-urlencoded"
+                headerMap["Authorization"] =
+                    Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
+
+                val jsonObjectBody = JSONObject()
+                jsonObjectBody.put("phone", KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID))
+                jsonObjectBody.put(
+                    "fcm_token",
+                    KeyStorePref.getString(AppConstants.KEY_STORE_FCM_TOKEN)
+                )
+
+                OkHttpNetworkProvider.post(
+                    BuildConfig.BASE_URL + "UserProfile/update_fcm_token",
+                    jsonObjectBody,
+                    headerMap,
+                    null,
+                    null,
+                    CommonResponseModel::class.java,
+                    object : OkHttpNetworkProvider.NetworkListener<CommonResponseModel> {
+                        override fun onResponse(response: CommonResponseModel?) {
+                            Log.i(TAG, "onResponse: $response")
+                            if (response != null && response.error == false) {
+                                KeyStorePref.putBoolean(
+                                    AppConstants.KEY_STORE_IS_FCM_TOKEN_SENT,
+                                    true
+                                )
+                            } else {
+                                KeyStorePref.putBoolean(
+                                    AppConstants.KEY_STORE_IS_FCM_TOKEN_SENT,
+                                    false
+                                )
+                            }
+                        }
+
+                        override fun onError(error: BaseErrorModel?) {
+                            Log.i(TAG, "onError: ")
+                        }
+                    })
+            }
+        }
+
+    }
+
 
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
