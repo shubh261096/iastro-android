@@ -40,6 +40,9 @@ data class User(
     @field:SerializedName("name")
     val name: String? = null,
 
+    @field:SerializedName("email")
+    val email: String? = null,
+
     @field:SerializedName("created_at")
     val createdAt: String? = null,
 

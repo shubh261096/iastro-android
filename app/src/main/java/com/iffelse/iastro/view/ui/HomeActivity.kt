@@ -130,6 +130,12 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
     }
 
     private fun updateDrawerUI() {
+        binding.includeDrawerLayout.navHeader.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            val intent = Intent(this, EditProfileActivity::class.java)
+            startActivity(intent)
+        }
+
         binding.includeDrawerLayout.profileName.text =
             KeyStorePref.getString(AppConstants.KEY_STORE_NAME)
 
