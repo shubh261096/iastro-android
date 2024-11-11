@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.iffelse.iastro.BuildConfig
@@ -166,7 +165,7 @@ class WalletActivity : BaseActivity() {
                         lifecycleScope.launch(Dispatchers.Main) {
                             Toast.makeText(
                                 this@WalletActivity,
-                                error?.message,
+                                error?.message ?: "Something went wrong!",
                                 Toast.LENGTH_SHORT
                             )
                                 .show()
