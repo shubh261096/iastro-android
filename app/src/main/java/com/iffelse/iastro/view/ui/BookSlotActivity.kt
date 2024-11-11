@@ -34,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.time.LocalTime
+import java.util.Calendar
 
 
 class BookSlotActivity : BaseActivity() {
@@ -261,12 +262,20 @@ class BookSlotActivity : BaseActivity() {
 
         // Generate time intervals based on the selected slot
         val intervalMinutes = selectedDuration // Default to 5 minutes
+
+        // Get the current time in "HH:mm" format
+        val calendar = Calendar.getInstance()
+        val currentTime = String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE))
+
         val availableTimeSlots = generateTimeSlots(
             slotsItem.startTime!!,
             slotsItem.endTime!!,
             intervalMinutes,
             selectedSlot ?: emptyList() // Pass an empty list if selectedSlot is null
-        )
+        ).filter { slot ->
+            // Only include slots with start time after the current time
+            slot.startTime >= currentTime // Ensure slot start time is after current time
+        }
 
         // Set up the TimeSlotsAdapter
         val timeSlotsAdapter = TimeSlotsAdapter(availableTimeSlots) { selectedTimeSlot ->
