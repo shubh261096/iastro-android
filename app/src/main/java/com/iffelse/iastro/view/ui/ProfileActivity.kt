@@ -11,7 +11,6 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.iffelse.iastro.BuildConfig
 import com.iffelse.iastro.R
@@ -24,14 +23,15 @@ import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONArray
 import org.json.JSONObject
 
 class ProfileActivity : BaseActivity() {
 
     private lateinit var binding: ActivityProfileBinding
 
-    private val TAG = "ProfileActivity"
+    companion object {
+        private const val TAG = "ProfileActivity"
+    }
 
     private lateinit var convertedTime: String
 
@@ -183,6 +183,8 @@ class ProfileActivity : BaseActivity() {
                 jsonObjectBody.put("place_of_birth", placeOfBirth)
                 jsonObjectBody.put("preferred_languages", language)
                 jsonObjectBody.put("gender", gender)
+                if (binding.etEmail.text.toString().isNotEmpty())
+                    jsonObjectBody.put("email", binding.etEmail.text.toString().trim())
 
                 OkHttpNetworkProvider.post(
                     BuildConfig.BASE_URL + "/UserProfile/update_user",
