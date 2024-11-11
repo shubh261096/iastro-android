@@ -103,7 +103,9 @@ class EditProfileActivity : BaseActivity() {
         binding.etPhone.setText(user.phoneNumber)
         binding.etDob.setText(user.dob)
         binding.etGender.setText(user.gender)
-        binding.etTime.setText(user.timeOfBirth)
+        user.timeOfBirth?.let {
+            binding.etTime.setText(Utils.convertTo12HourFormat(user.timeOfBirth))
+        }
         user.email?.let {
             binding.etEmail.visibility = View.VISIBLE
             binding.etEmail.setText(user.email)
