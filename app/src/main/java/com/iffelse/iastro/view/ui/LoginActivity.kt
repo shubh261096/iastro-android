@@ -122,7 +122,7 @@ class LoginActivity : BaseActivity() {
                                 Utils.hideProgress()
                                 Toast.makeText(
                                     this@LoginActivity,
-                                    error?.message ?: "",
+                                    error?.message ?: "Something went wrong!",
                                     Toast.LENGTH_SHORT
                                 )
                                     .show()
@@ -220,7 +220,7 @@ class LoginActivity : BaseActivity() {
                                 lifecycleScope.launch(Dispatchers.Main) {
                                     Toast.makeText(
                                         this@LoginActivity,
-                                        error?.message,
+                                        error?.message ?: "Something went wrong!",
                                         Toast.LENGTH_SHORT
                                     )
                                         .show()

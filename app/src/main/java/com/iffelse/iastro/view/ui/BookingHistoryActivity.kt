@@ -98,7 +98,7 @@ class BookingHistoryActivity : BaseActivity() {
                             Utils.hideProgress()
                             Toast.makeText(
                                 this@BookingHistoryActivity,
-                                error?.message,
+                                error?.message ?: "Something went wrong!",
                                 Toast.LENGTH_SHORT
                             )
                                 .show()

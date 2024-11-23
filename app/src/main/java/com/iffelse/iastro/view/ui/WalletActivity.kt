@@ -119,7 +119,7 @@ class WalletActivity : BaseActivity() {
                             Utils.hideProgress()
                             Toast.makeText(
                                 this@WalletActivity,
-                                error?.message,
+                                error?.message ?: "Something went wrong!",
                                 Toast.LENGTH_SHORT
                             )
                                 .show()

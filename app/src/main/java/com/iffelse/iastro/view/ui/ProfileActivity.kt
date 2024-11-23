@@ -217,7 +217,7 @@ class ProfileActivity : BaseActivity() {
                                 Utils.hideProgress()
                                 Toast.makeText(
                                     this@ProfileActivity,
-                                    error?.message,
+                                    error?.message ?: "Something went wrong!",
                                     Toast.LENGTH_SHORT
                                 )
                                     .show()

@@ -174,7 +174,7 @@ class BookSlotActivity : BaseActivity() {
                             Utils.hideProgress()
                             Toast.makeText(
                                 this@BookSlotActivity,
-                                error?.message,
+                                error?.message ?: "Something went wrong!",
                                 Toast.LENGTH_SHORT
                             )
                                 .show()

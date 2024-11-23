@@ -127,7 +127,7 @@ class CallFragment : Fragment() {
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
                         lifecycleScope.launch(Dispatchers.Main) {
-                            Toast.makeText(activity, error?.message, Toast.LENGTH_SHORT)
+                            Toast.makeText(activity, error?.message ?: "Something went wrong!", Toast.LENGTH_SHORT)
                                 .show()
                         }
                     }
