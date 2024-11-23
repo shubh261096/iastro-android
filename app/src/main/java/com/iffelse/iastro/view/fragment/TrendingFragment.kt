@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.iffelse.iastro.R
 import com.iffelse.iastro.databinding.FragmentTrendingBinding
 import com.iffelse.iastro.model.BaseErrorModel
@@ -15,6 +16,8 @@ import com.iffelse.iastro.utils.AppConstants
 import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -81,23 +84,25 @@ class TrendingFragment : Fragment() {
 
 
             val sign = dob?.let { Utils.getSunSign(it) }
-            OkHttpNetworkProvider.get("https://horoscope-app-api.vercel.app/api/v1/get-horoscope/daily?sign=$sign&day=$day",
-                null,
-                null,
-                "",
-                responseType = JSONObject::class.java,
-                object : OkHttpNetworkProvider.NetworkListener<JSONObject> {
-                    override fun onResponse(response: JSONObject?) {
-                        Log.i("TAG", "onResponse: ${response.toString()}")
-                        activity?.runOnUiThread {
-                            updateHoroscopeUI(response, sign!!)
+            lifecycleScope.launch(Dispatchers.IO) {
+                OkHttpNetworkProvider.get("https://horoscope-app-api.vercel.app/api/v1/get-horoscope/daily?sign=$sign&day=$day",
+                    null,
+                    null,
+                    "",
+                    responseType = JSONObject::class.java,
+                    object : OkHttpNetworkProvider.NetworkListener<JSONObject> {
+                        override fun onResponse(response: JSONObject?) {
+                            Log.i("TAG", "onResponse: ${response.toString()}")
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                updateHoroscopeUI(response, sign!!)
+                            }
                         }
-                    }
 
-                    override fun onError(error: BaseErrorModel?) {
+                        override fun onError(error: BaseErrorModel?) {
 
-                    }
-                })
+                        }
+                    })
+            }
         }
     }
 

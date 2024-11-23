@@ -195,20 +195,20 @@ class ProfileActivity : BaseActivity() {
                     LoginResponseModel::class.java,
                     object : OkHttpNetworkProvider.NetworkListener<LoginResponseModel> {
                         override fun onResponse(response: LoginResponseModel?) {
+                            Log.i(TAG, "onResponse: $response")
                             lifecycleScope.launch(Dispatchers.Main) {
                                 Utils.hideProgress()
-                            }
-                            if (response != null) {
-                                if (response.error == false) {
-                                    KeyStorePref.putString(AppConstants.KEY_STORE_NAME, name)
-                                    KeyStorePref.putString(AppConstants.KEY_STORE_DOB, dob)
-                                    val intent =
-                                        Intent(this@ProfileActivity, HomeActivity::class.java)
-                                    startActivity(intent)
-                                    finish()
+                                if (response != null) {
+                                    if (response.error == false) {
+                                        KeyStorePref.putString(AppConstants.KEY_STORE_NAME, name)
+                                        KeyStorePref.putString(AppConstants.KEY_STORE_DOB, dob)
+                                        val intent =
+                                            Intent(this@ProfileActivity, HomeActivity::class.java)
+                                        startActivity(intent)
+                                        finish()
+                                    }
                                 }
                             }
-                            Log.i(TAG, "onResponse: $response")
                         }
 
                         override fun onError(error: BaseErrorModel?) {

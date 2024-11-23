@@ -165,50 +165,50 @@ class LoginActivity : BaseActivity() {
                             override fun onResponse(response: LoginResponseModel?) {
                                 lifecycleScope.launch(Dispatchers.Main) {
                                     Utils.hideProgress()
-                                }
-                                if (response != null) {
-                                    Log.i(TAG, "onResponse: $response")
-                                    if (response.error == false) {
-                                        KeyStorePref.putString(
-                                            AppConstants.KEY_STORE_USER_ID,
-                                            "91" + binding.etMobileNumber.text.toString().trim()
-                                        )
-                                        KeyStorePref.putBoolean(
-                                            AppConstants.KEY_STORE_IS_LOGIN,
-                                            true
-                                        )
-                                        // Check if user is new or old
-                                        if (response.userStatus == "new") {
-                                            val intent = Intent(
-                                                this@LoginActivity,
-                                                ProfileActivity::class.java
+                                    if (response != null) {
+                                        Log.i(TAG, "onResponse: $response")
+                                        if (response.error == false) {
+                                            KeyStorePref.putString(
+                                                AppConstants.KEY_STORE_USER_ID,
+                                                "91" + binding.etMobileNumber.text.toString().trim()
                                             )
-                                            startActivity(intent)
-                                            finish()
-                                        } else {
-                                            if (response.user != null) {
-                                                if (!response.user.name.isNullOrEmpty()) {
-                                                    KeyStorePref.putString(
-                                                        AppConstants.KEY_STORE_NAME,
-                                                        response.user.name
-                                                    )
-                                                }
-
-                                                if (!response.user.dob.isNullOrEmpty()) {
-                                                    KeyStorePref.putString(
-                                                        AppConstants.KEY_STORE_DOB,
-                                                        response.user.dob
-                                                    )
-                                                }
-                                                val intent =
-                                                    Intent(
-                                                        this@LoginActivity,
-                                                        HomeActivity::class.java
-                                                    )
+                                            KeyStorePref.putBoolean(
+                                                AppConstants.KEY_STORE_IS_LOGIN,
+                                                true
+                                            )
+                                            // Check if user is new or old
+                                            if (response.userStatus == "new") {
+                                                val intent = Intent(
+                                                    this@LoginActivity,
+                                                    ProfileActivity::class.java
+                                                )
                                                 startActivity(intent)
                                                 finish()
-                                            }
+                                            } else {
+                                                if (response.user != null) {
+                                                    if (!response.user.name.isNullOrEmpty()) {
+                                                        KeyStorePref.putString(
+                                                            AppConstants.KEY_STORE_NAME,
+                                                            response.user.name
+                                                        )
+                                                    }
 
+                                                    if (!response.user.dob.isNullOrEmpty()) {
+                                                        KeyStorePref.putString(
+                                                            AppConstants.KEY_STORE_DOB,
+                                                            response.user.dob
+                                                        )
+                                                    }
+                                                    val intent =
+                                                        Intent(
+                                                            this@LoginActivity,
+                                                            HomeActivity::class.java
+                                                        )
+                                                    startActivity(intent)
+                                                    finish()
+                                                }
+
+                                            }
                                         }
                                     }
                                 }
@@ -216,8 +216,8 @@ class LoginActivity : BaseActivity() {
 
                             override fun onError(error: BaseErrorModel?) {
                                 Log.i(TAG, "onError: ")
-                                Utils.hideProgress()
                                 lifecycleScope.launch(Dispatchers.Main) {
+                                    Utils.hideProgress()
                                     Toast.makeText(
                                         this@LoginActivity,
                                         error?.message ?: "Something went wrong!",
