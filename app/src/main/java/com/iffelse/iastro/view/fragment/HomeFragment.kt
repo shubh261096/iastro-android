@@ -113,40 +113,38 @@ class HomeFragment : Fragment() {
                 AstrologerResponseModel::class.java,
                 object : OkHttpNetworkProvider.NetworkListener<AstrologerResponseModel> {
                     override fun onResponse(response: AstrologerResponseModel?) {
-                        if (isAdded && !isDetached && response != null) {
-                            if (response.error == false) {
-                                if (response.data != null) {
-                                    if (response.data.isEmpty())
-                                        binding.labelOurAstrologer.visibility = View.GONE
-                                    else {
-                                        binding.labelOurAstrologer.visibility = View.VISIBLE
-                                        val activity = requireActivity()
-                                        astrologerAdapter =
-                                            AstrologerAdapter(
-                                                response.data,
-                                                requireActivity(),
-                                                object : AstrologerAdapter.CLickListener {
-                                                    override fun onClick(position: Int) {
-                                                        val intent = Intent(
-                                                            activity,
-                                                            BookSlotActivity::class.java
-                                                        )
-                                                        intent.putExtra(
-                                                            "astrologer_phone",
-                                                            response.data[position]?.phoneNumber
-                                                        )
-                                                        intent.putExtra(
-                                                            "final_rate",
-                                                            response.data[position]?.finalRate
-                                                        )
-                                                        startActivity(intent)
-                                                    }
-                                                })
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            if (isAdded && !isDetached && response != null) {
+                                if (response.error == false) {
+                                    if (response.data != null) {
+                                        if (response.data.isEmpty())
+                                            binding.labelOurAstrologer.visibility = View.GONE
+                                        else {
+                                            binding.labelOurAstrologer.visibility = View.VISIBLE
+                                            val activity = requireActivity()
+                                            astrologerAdapter =
+                                                AstrologerAdapter(
+                                                    response.data,
+                                                    requireActivity(),
+                                                    object : AstrologerAdapter.CLickListener {
+                                                        override fun onClick(position: Int) {
+                                                            val intent = Intent(
+                                                                activity,
+                                                                BookSlotActivity::class.java
+                                                            )
+                                                            intent.putExtra(
+                                                                "astrologer_phone",
+                                                                response.data[position]?.phoneNumber
+                                                            )
+                                                            intent.putExtra(
+                                                                "final_rate",
+                                                                response.data[position]?.finalRate
+                                                            )
+                                                            startActivity(intent)
+                                                        }
+                                                    })
 
-                                    }
-
-
-                                    lifecycleScope.launch(Dispatchers.Main) {
+                                        }
                                         binding.recyclerViewAstrologers.adapter =
                                             astrologerAdapter
                                     }
@@ -158,7 +156,12 @@ class HomeFragment : Fragment() {
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
                         lifecycleScope.launch(Dispatchers.Main) {
-                            Toast.makeText(activity, error?.message ?: "Something went wrong", Toast.LENGTH_SHORT)
+                            binding.labelOurAstrologer.visibility = View.GONE
+                            Toast.makeText(
+                                activity,
+                                error?.message ?: "Something went wrong",
+                                Toast.LENGTH_SHORT
+                            )
                                 .show()
                         }
                     }

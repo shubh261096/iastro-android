@@ -38,9 +38,9 @@ class CallFragment : Fragment() {
 
     private val bannerList = listOf(
         Banner("Job related issues?", ""),
-        Banner("Career Advice needed?", ""),
+        Banner("Career advice needed?", ""),
         Banner("Relationship or Marriage Issues", ""),
-        Banner("Work stress? Or Family troubles", ""),
+        Banner("Work stress? Or Family troubles?", ""),
         Banner("When will my ex come back?", ""),
         Banner("When will I get married?", ""),
         Banner("What is my lucky number?", "")
@@ -88,36 +88,36 @@ class CallFragment : Fragment() {
                 AstrologerResponseModel::class.java,
                 object : OkHttpNetworkProvider.NetworkListener<AstrologerResponseModel> {
                     override fun onResponse(response: AstrologerResponseModel?) {
-                        if (response != null) {
-                            if (response.error == false) {
-                                if (response.data != null) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            if (isAdded && !isDetached && response != null) {
+                                if (response.error == false) {
+                                    if (response.data != null) {
 
-                                    val activity = requireActivity()
-                                    astrologerAdapter =
-                                        AstrologerAdapter(
-                                            response.data,
-                                            requireActivity(),
-                                            object : AstrologerAdapter.CLickListener {
-                                                override fun onClick(position: Int) {
-                                                    val intent = Intent(
-                                                        activity,
-                                                        BookSlotActivity::class.java
-                                                    )
-                                                    intent.putExtra(
-                                                        "astrologer_phone",
-                                                        response.data[position]?.phoneNumber
-                                                    )
-                                                    intent.putExtra(
-                                                        "final_rate",
-                                                        response.data[position]?.finalRate
-                                                    )
-                                                    startActivity(intent)
-                                                }
-                                            })
+                                        val activity = requireActivity()
+                                        astrologerAdapter =
+                                            AstrologerAdapter(
+                                                response.data,
+                                                requireActivity(),
+                                                object : AstrologerAdapter.CLickListener {
+                                                    override fun onClick(position: Int) {
+                                                        val intent = Intent(
+                                                            activity,
+                                                            BookSlotActivity::class.java
+                                                        )
+                                                        intent.putExtra(
+                                                            "astrologer_phone",
+                                                            response.data[position]?.phoneNumber
+                                                        )
+                                                        intent.putExtra(
+                                                            "final_rate",
+                                                            response.data[position]?.finalRate
+                                                        )
+                                                        startActivity(intent)
+                                                    }
+                                                })
 
-                                }
+                                    }
 
-                                lifecycleScope.launch(Dispatchers.Main) {
                                     binding.recyclerViewAstrologers.adapter = astrologerAdapter
                                 }
                             }
