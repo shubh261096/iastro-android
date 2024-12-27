@@ -148,3 +148,7 @@
 -keepclasseswithmembers class * {
   public void onPayment*(...);
 }
+
+-keep class com.sceyt.chatuikit.** { *; }
+-keep class com.masoudss.** { *; }
+-dontwarn com.masoudss.**

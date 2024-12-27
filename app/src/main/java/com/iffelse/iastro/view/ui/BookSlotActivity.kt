@@ -118,7 +118,6 @@ class BookSlotActivity : BaseActivity() {
             finish()
         }
         fetchAstrologerStatus()
-        updateWalletBalanceUI()
     }
 
     private fun showTypeUI(isBusy: Int) {
@@ -132,7 +131,7 @@ class BookSlotActivity : BaseActivity() {
             override fun onTypeSelected(type: String) {
                 this@BookSlotActivity.type = type.lowercase()
                 resetUI()
-                showMinutesUI()
+                updateWalletBalanceUI()
             }
         })
         adapter.setSelectedType(type)
@@ -260,6 +259,7 @@ class BookSlotActivity : BaseActivity() {
                                             append("Rs. ")
                                             append(response.walletBalance.balance)
                                         }
+                                    showMinutesUI()
                                 }
                             }
                         }
@@ -565,8 +565,8 @@ class BookSlotActivity : BaseActivity() {
                         type = "direct",
                         members = listOf(
                             SceytMember(
-                                SceytUser("918840708648"),
-                                "owner" // TODO: Change with astrologerPhoneNumber in PROD
+                                SceytUser(astrologerPhone),
+                                "owner"
                             )
                         )
                     )

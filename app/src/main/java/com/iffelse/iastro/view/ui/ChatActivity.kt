@@ -1,10 +1,12 @@
 package com.iffelse.iastro.view.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -12,7 +14,6 @@ import com.iffelse.iastro.BuildConfig
 import com.iffelse.iastro.databinding.ActivityChatBinding
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.AstrologerStatusResponseModel
-import com.iffelse.iastro.model.response.ChatTokenResponseModel
 import com.iffelse.iastro.model.response.GetTimeResponseModel
 import com.iffelse.iastro.utils.AppConstants
 import com.iffelse.iastro.utils.KeyStorePref
@@ -58,6 +59,13 @@ class ChatActivity : AppCompatActivity() {
             binding.timerLayout.visibility = View.GONE
             binding.messageInputView.disableInputWithMessage(message = "Something went wrong!")
         }
+
+        onBackPressedDispatcher.addCallback(object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                startActivity(Intent(this@ChatActivity, HomeActivity::class.java))
+                finish()
+            }
+        })
     }
 
     // TODO: Change the api to fetch the total time in the current time frame if it is 5 rows or anything.
