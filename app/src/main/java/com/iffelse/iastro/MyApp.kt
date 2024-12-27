@@ -7,6 +7,10 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.inappmessaging.FirebaseInAppMessaging
 import com.iffelse.iastro.utils.KeyStorePref
 import com.razorpay.Checkout
+import com.sceyt.chatuikit.SceytChatUIKit
+import com.sceyt.chatuikit.styles.StyleCustomizer
+import com.sceyt.chatuikit.styles.input.MessageInputStyle
+import java.util.UUID
 
 class MyApp : Application() {
     override fun onCreate() {
@@ -23,5 +27,22 @@ class MyApp : Application() {
          * Preload payment resources
          */
         Checkout.preload(this)
+
+        SceytChatUIKit.initialize(this,
+            apiUrl = "https://us-ohio-api.sceyt.com",
+            appId = "y2k4jg28xy",
+            clientId = UUID.randomUUID().toString(),
+            enableDatabase = true)
+
+        MessageInputStyle.styleCustomizer  = StyleCustomizer { context, style ->
+            style.copy(
+                enableSendAttachment = false,
+                enableVoiceRecord = false
+            )
+        }
+
+        SceytChatUIKit.theme.colors = SceytChatUIKit.theme.colors.copy(
+            accentColor = R.color.orange
+        )
     }
 }

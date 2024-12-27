@@ -16,10 +16,14 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import com.iffelse.iastro.view.ui.HomeActivity
 import com.iffelse.iastro.R
+import com.iffelse.iastro.view.ui.ChatActivity
+import com.iffelse.iastro.view.ui.HomeActivity
+import com.sceyt.chatuikit.push.FirebaseMessagingDelegate
+import kotlinx.coroutines.runBlocking
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlin.random.Random
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
@@ -50,27 +54,69 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         super.onMessageReceived(remoteMessage)
 
-        Log.i("TAG", "onMessageReceived: ${remoteMessage.notification?.title}")
+        try {
+            runBlocking {
+                if (!FirebaseMessagingDelegate.handleRemoteMessage(remoteMessage)) {
+                    Log.i("TAG", "onMessageReceived: ${remoteMessage.notification?.title}")
 
-        if (remoteMessage.data.isNotEmpty()) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.data)
-            val data = remoteMessage.data
-            handleData(data)
-        } else if (remoteMessage.notification != null) {
-            // Check if message contains a notification payload
-            remoteMessage.notification?.let {
-                val title = it.title ?: "iastro"
-                val body = it.body ?: "You have a new message."
-                val imageUrl =
-                    remoteMessage.data["image"]  // Get the image URL from the data payload if sent
+                    if (remoteMessage.data.isNotEmpty()) {
+                        Log.d(TAG, "Message data payload: " + remoteMessage.data)
+                        val data = remoteMessage.data
+                        handleData(data, null)
+                    } else if (remoteMessage.notification != null) {
+                        // Check if message contains a notification payload
+                        remoteMessage.notification?.let {
+                            val title = it.title ?: "iastro"
+                            val body = it.body ?: "You have a new message."
+                            val imageUrl =
+                                remoteMessage.data["image"]  // Get the image URL from the data payload if sent
 
-                // Show notification
-                sendNotification(title, body, imageUrl)
+                            // Show notification
+                            sendNotification(title, body, imageUrl, null)
+                        }
+                    }
+                } else {
+                    FirebaseMessagingDelegate.handleRemoteMessageGetData(remoteMessage)
+                        ?.let { data ->
+                            if (data.channel != null) {
+                                val channel = data.channel ?: return@runBlocking
+                                val user = data.user
+                                val message = data.message
+
+
+                                val intent = Intent(application, ChatActivity::class.java).apply {
+                                    putExtra("CHANNEL", channel)
+                                    putExtra("astrologer_phone", user?.id)
+                                }
+
+                                val pendingIntent =
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                        PendingIntent.getActivity(
+                                            application, Random.nextInt(), intent,
+                                            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                                        )
+                                    } else {
+                                        PendingIntent.getActivity(
+                                            application, Random.nextInt(), intent,
+                                            PendingIntent.FLAG_UPDATE_CURRENT
+                                        )
+                                    }
+
+                                val remoteMsg = mutableMapOf<String, String>()
+                                user?.firstName?.let { remoteMsg.put(TITLE, it) }
+                                user?.avatarURL?.let { remoteMsg.put(IMAGE, it) }
+                                message?.body?.let { remoteMsg.put(MESSAGE, it) }
+                                handleData(remoteMsg, pendingIntent)
+                            }
+                        }
+                }
             }
+        } catch (exception: Exception) {
+            Log.e(TAG, "handleRemoteMessage error: " + exception.message.toString())
         }
     }
 
-    private fun handleData(data: Map<String, String>) {
+    private fun handleData(data: Map<String, String>, pendingIntent: PendingIntent?) {
         Log.i(TAG, "handleData: Inside this")
         val title = data[TITLE]
         val message = data[MESSAGE]
@@ -79,11 +125,17 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val actionDestination = data[ACTION_DESTINATION]
 
         title?.let {
-            sendNotification(title, message!!, iconUrl)
+            sendNotification(title, message!!, iconUrl, pendingIntent)
         }
     }
 
-    private fun sendNotification(title: String, message: String, imageUrl: String?) {
+    private fun sendNotification(
+        title: String,
+        message: String,
+        imageUrl: String?,
+        pendingIntent: PendingIntent?
+    ) {
+        val finalPendingIntent: PendingIntent
         val channelId = "default_channel"
         val notificationId = 1
 
@@ -99,17 +151,21 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             manager.createNotificationChannel(channel)
         }
 
-        // Intent to open the app when notification is clicked
-        val intent = Intent(this, HomeActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        if (pendingIntent == null) {
+            // Intent to open the app when notification is clicked
+            val intent = Intent(this, HomeActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
 
-        // Use FLAG_IMMUTABLE
-        val pendingIntent = PendingIntent.getActivity(
-            this,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+            // Use FLAG_IMMUTABLE
+            finalPendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+        } else {
+            finalPendingIntent = pendingIntent
+        }
 
 
         // Create a notification builder
@@ -118,7 +174,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(finalPendingIntent)
             .setAutoCancel(true)
 
         // If there is an image URL, fetch the image and set it in the notification

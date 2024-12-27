@@ -83,10 +83,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:padding="@dimen/dp_16"
-                    app:layout_constraintBottom_toTopOf="@id/bookSlotButton"
+                    app:layout_constraintBottom_toTopOf="@id/clButtons"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
+
+                    <!-- Type Selection RecyclerView (Grid Layout) -->
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvType"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:visibility="visible"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:listitem="@layout/item_time_slot" />
 
                     <!-- Minutes Selection Title -->
                     <TextView
@@ -97,14 +109,16 @@
                         android:text="Select Number of Minutes"
                         android:textColor="@color/black"
                         android:textSize="14sp"
+                        android:visibility="gone"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toBottomOf="@id/rvType" />
 
                     <!-- Minutes Selection RecyclerView (Grid Layout) -->
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvMinutes"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:visibility="gone"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/tvSelectMinutes"
@@ -169,21 +183,43 @@
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <!-- Book Slot Button -->
-                <Button
-                    android:id="@+id/bookSlotButton"
-                    android:layout_width="0dp"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/clButtons"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/dp_16"
-                    android:background="@drawable/button_background"
-                    android:padding="12dp"
-                    android:text="Book Slot"
-                    android:textColor="@android:color/white"
-                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/clSlots" />
+                    app:layout_constraintTop_toBottomOf="@id/clSlots">
+                    <!-- Book Slot Button -->
+                    <Button
+                        android:id="@+id/chatButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/dp_16"
+                        android:background="@drawable/button_background"
+                        android:padding="12dp"
+                        android:text="Chat"
+                        android:textColor="@android:color/white"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/callButton"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Button
+                        android:id="@+id/callButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="@dimen/dp_16"
+                        android:background="@drawable/button_background"
+                        android:padding="12dp"
+                        android:text="Call"
+                        android:textColor="@android:color/white"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/chatButton"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.core.widget.NestedScrollView>
 

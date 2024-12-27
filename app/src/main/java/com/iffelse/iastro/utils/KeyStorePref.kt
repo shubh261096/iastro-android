@@ -9,7 +9,9 @@ object KeyStorePref {
     private lateinit var sharedPreferences: SharedPreferences
 
     fun initialize(context: Context) {
-        sharedPreferences = context.applicationContext.getSharedPreferences(PREFERENCES_NAME, 0)
+        if (!::sharedPreferences.isInitialized) {
+            sharedPreferences = context.applicationContext.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+        }
     }
 
     fun getBoolean(key: String?): Boolean {

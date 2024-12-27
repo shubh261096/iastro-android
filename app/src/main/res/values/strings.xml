@@ -8,6 +8,7 @@
     <string name="navigation_drawer_open">Open drawer</string>
     <string name="navigation_drawer_close">Close drawer</string>
     <string name="trending">Trending</string>
+    <string name="chat">Chat</string>
     <string name="call_with_astrologer">Call with Astrologer</string>
 
 </resources>

@@ -1,6 +1,5 @@
 package com.iffelse.iastro.utils
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.ProgressDialog
 import android.app.TimePickerDialog
@@ -13,10 +12,8 @@ import android.net.Uri
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.DatePicker
-import android.widget.Toast
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.Base64
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -195,9 +192,14 @@ object Utils {
         return outputFormat.format(date!!)
     }
 
-    @SuppressLint("NewApi")
     fun encodeToBase64(input: String): String {
-        return Base64.getEncoder().encodeToString(input.toByteArray())
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            // Use java.util.Base64 for API 26 and above
+            java.util.Base64.getEncoder().encodeToString(input.toByteArray())
+        } else {
+            // Use android.util.Base64 for API levels below 26
+            android.util.Base64.encodeToString(input.toByteArray(), android.util.Base64.DEFAULT)
+        }
     }
 
     fun generateUniquePaymentId(): String {
@@ -275,6 +277,20 @@ object Utils {
             context.startActivity(browserIntent)
         }
     }
+
+    fun getCurrentTime(): String {
+        val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        return dateFormat.format(Date())
+    }
+
+    fun convertTimeToMilliseconds(time: String): Long {
+        val parts = time.split(":").map { it.toInt() }
+        val hours = parts[0]
+        val minutes = parts[1]
+        val seconds = parts[2]
+        return (hours * 3600 + minutes * 60 + seconds) * 1000L
+    }
+
 
 
     interface DateFormatResult {

@@ -10,7 +10,14 @@
         android:title="Call" />
 
     <item
+        android:id="@+id/chat"
+        android:icon="@drawable/chat"
+        android:title="Chat" />
+
+    <item
         android:id="@+id/nav_trending"
         android:icon="@drawable/trending"
         android:title="Trending" />
+
+
 </menu>

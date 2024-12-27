@@ -62,5 +62,8 @@ data class DataItem(
     val isOnline: String? = null,
 
     @field:SerializedName("reviews_count")
-    val reviewsCount: String? = null
+    val reviewsCount: String? = null,
+
+    @field:SerializedName("is_busy")
+    val isBusy: String? = null,
 )

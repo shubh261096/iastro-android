@@ -14,7 +14,7 @@ import com.iffelse.iastro.model.response.DataItem
 class AstrologerAdapter(
     private val astrologers: List<DataItem?>,
     private val context: Context,
-    val cLickListener: CLickListener
+    val astrologerAdapterClickListener: AstrologerAdapterClickListener
 ) :
     RecyclerView.Adapter<AstrologerAdapter.AstrologerViewHolder>() {
 
@@ -60,11 +60,20 @@ class AstrologerAdapter(
 
             if (astrologer.isActive == "1") {
                 if (astrologer.isOnline != null && astrologer.isOnline == "1") {
+                    if (astrologer.isBusy != null && astrologer.isBusy == "1") {
+                        binding.chatIcon.visibility = View.GONE
+                        binding.onlineStatus.setBackgroundResource(R.drawable.busy_dot)
+                    } else {
+                        binding.chatIcon.visibility = View.VISIBLE
+                        binding.onlineStatus.setBackgroundResource(R.drawable.online_dot)
+                    }
                     binding.onlineStatus.visibility = View.VISIBLE
                 } else {
+                    binding.chatIcon.visibility = View.GONE
                     binding.onlineStatus.visibility = View.GONE
                 }
             } else {
+                binding.chatIcon.visibility = View.GONE
                 binding.onlineStatus.visibility = View.GONE
             }
 
@@ -76,10 +85,12 @@ class AstrologerAdapter(
 
             binding.executePendingBindings()
 
-            // Call button click listener (can add functionality later)
-            itemView.setOnClickListener {
-                // Handle the call action here
-                cLickListener.onClick(adapterPosition)
+            binding.chatIcon.setOnClickListener{
+                astrologerAdapterClickListener.onChatClick(bindingAdapterPosition)
+            }
+
+            binding.callIcon.setOnClickListener{
+                astrologerAdapterClickListener.onCallClick(bindingAdapterPosition)
             }
         }
 
@@ -87,5 +98,11 @@ class AstrologerAdapter(
 
     interface CLickListener {
         fun onClick(position: Int)
+    }
+
+    interface AstrologerAdapterClickListener {
+        fun onChatClick(position: Int)
+
+        fun onCallClick(position: Int)
     }
 }

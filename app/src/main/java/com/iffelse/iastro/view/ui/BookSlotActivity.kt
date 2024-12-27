@@ -12,10 +12,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
-import com.iffelse.iastro.R
 import com.iffelse.iastro.BuildConfig
+import com.iffelse.iastro.R
 import com.iffelse.iastro.databinding.ActivitySlotBookingsBinding
 import com.iffelse.iastro.model.BaseErrorModel
+import com.iffelse.iastro.model.response.AstrologerStatusResponseModel
+import com.iffelse.iastro.model.response.ChatTokenResponseModel
 import com.iffelse.iastro.model.response.LoginResponseModel
 import com.iffelse.iastro.model.response.WalletResponseModel
 import com.iffelse.iastro.model.response.slots.AllBookingsResponseModel
@@ -30,6 +32,13 @@ import com.iffelse.iastro.utils.Utils
 import com.iffelse.iastro.view.adapter.MinutesAdapter
 import com.iffelse.iastro.view.adapter.SlotAdapter
 import com.iffelse.iastro.view.adapter.TimeSlotsAdapter
+import com.iffelse.iastro.view.adapter.TypeAdapter
+import com.sceyt.chatuikit.SceytChatUIKit
+import com.sceyt.chatuikit.data.models.SceytResponse
+import com.sceyt.chatuikit.data.models.channels.CreateChannelData
+import com.sceyt.chatuikit.data.models.channels.SceytMember
+import com.sceyt.chatuikit.data.models.messages.SceytUser
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -46,6 +55,7 @@ class BookSlotActivity : BaseActivity() {
     private var slotId: String = ""
     private var selectedStartTime: String = ""
     private var isFreeUser: Boolean = false
+    private var type: String = "chat"
 
 
     private lateinit var slotAdapter: SlotAdapter
@@ -61,6 +71,8 @@ class BookSlotActivity : BaseActivity() {
                 astrologerRate = intent.getStringExtra("final_rate")?.toDouble()!!
             if (intent.hasExtra("astrologer_phone"))
                 astrologerPhoneNumber = intent.getStringExtra("astrologer_phone")!!
+            if (intent.hasExtra("type"))
+                type = intent.getStringExtra("type")!!
         }
 
         binding.toolbarImage.setOnClickListener {
@@ -74,14 +86,26 @@ class BookSlotActivity : BaseActivity() {
         // RecyclerView setup for available slots
         binding.rvAvailableSlots.layoutManager = gridLayoutManagerSlots
 
-
-        // Book Slot button listener
-        binding.bookSlotButton.setOnClickListener {
+        // Chat Button Listener
+        binding.chatButton.setOnClickListener {
             if (this.isFreeUser) {
-                bookSlots()
+                bookSlots("chat")
             } else {
                 if (checkWalletBalance()) {
-                    bookSlots()
+                    bookSlots("chat")
+                } else {
+                    promptUserToAddMoney()
+                }
+            }
+        }
+
+        // Book Slot button listener
+        binding.callButton.setOnClickListener {
+            if (this.isFreeUser) {
+                bookSlots("voice")
+            } else {
+                if (checkWalletBalance()) {
+                    bookSlots("voice")
                 } else {
                     promptUserToAddMoney()
                 }
@@ -93,11 +117,39 @@ class BookSlotActivity : BaseActivity() {
             startActivity(intent)
             finish()
         }
-
+        fetchAstrologerStatus()
         updateWalletBalanceUI()
     }
 
+    private fun showTypeUI(isBusy: Int) {
+        val gridLayoutManagerMinutes = GridLayoutManager(this, 3) // 3 columns
+        binding.rvType.layoutManager = gridLayoutManagerMinutes
+        val typeList = if (isBusy == 1)
+            listOf("Call")
+        else
+            listOf("Chat", "Call")
+        val adapter = TypeAdapter(typeList, object : TypeAdapter.OnTypeSelectedListener {
+            override fun onTypeSelected(type: String) {
+                this@BookSlotActivity.type = type.lowercase()
+                resetUI()
+                showMinutesUI()
+            }
+        })
+        adapter.setSelectedType(type)
+        binding.rvType.adapter = adapter
+    }
+
+    private fun resetUI() {
+        binding.tvSelectMinutes.visibility = View.GONE
+        binding.rvMinutes.visibility = View.GONE
+        binding.timeSlotLayout.visibility = View.GONE
+        binding.callButton.visibility = View.GONE
+        binding.chatButton.visibility = View.GONE
+    }
+
     private fun showMinutesUI() {
+        binding.rvMinutes.visibility = View.VISIBLE
+        binding.tvSelectMinutes.visibility = View.VISIBLE
         val gridLayoutManagerMinutes = GridLayoutManager(this, 3) // 3 columns
         binding.rvMinutes.layoutManager = gridLayoutManagerMinutes
 
@@ -111,13 +163,20 @@ class BookSlotActivity : BaseActivity() {
             override fun onMinuteSelected(minute: Int) {
                 this@BookSlotActivity.isFreeUser = minute == 2
                 selectedDuration = minute
-                if (isFreeUser) {
-                    binding.bookSlotButton.visibility = View.VISIBLE
+                if (type == "chat") {
+                    binding.chatButton.visibility = View.VISIBLE
+                    binding.callButton.visibility = View.GONE
                     binding.timeSlotLayout.visibility = View.GONE
                 } else {
-                    binding.bookSlotButton.visibility = View.GONE
-                    binding.timeSlotLayout.visibility = View.VISIBLE
-                    loadAvailableSlots()
+                    binding.chatButton.visibility = View.GONE
+                    if (isFreeUser) {
+                        binding.callButton.visibility = View.VISIBLE
+                        binding.timeSlotLayout.visibility = View.GONE
+                    } else {
+                        binding.callButton.visibility = View.GONE
+                        binding.timeSlotLayout.visibility = View.VISIBLE
+                        loadAvailableSlots()
+                    }
                 }
                 binding.rvTimeSlots.visibility = View.GONE
                 binding.tvSlotsTime.visibility = View.GONE
@@ -127,6 +186,46 @@ class BookSlotActivity : BaseActivity() {
         val adapter = MinutesAdapter(minutesList, listener)
         binding.rvMinutes.adapter = adapter
     }
+
+    private fun fetchAstrologerStatus() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val headers = mutableMapOf<String, String>()
+            headers["Content-Type"] = "application/json"
+            headers["Authorization"] =
+                Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
+            OkHttpNetworkProvider.get(
+                BuildConfig.BASE_URL + "astrologers/profile/busy_status/$astrologerPhoneNumber",
+                headers,
+                null,
+                null,
+                AstrologerStatusResponseModel::class.java,
+                object : OkHttpNetworkProvider.NetworkListener<AstrologerStatusResponseModel> {
+                    override fun onResponse(response: AstrologerStatusResponseModel?) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            if (response != null) {
+                                if (response.error == false) {
+                                    response.isBusy?.let { showTypeUI(it) }
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onError(error: BaseErrorModel?) {
+                        Log.i(TAG, "onError: ")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                            Toast.makeText(
+                                this@BookSlotActivity,
+                                error?.message ?: "Something went wrong!",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                    }
+                })
+        }
+    }
+
 
     private fun updateWalletBalanceUI() {
         Utils.showProgress(this@BookSlotActivity, "Please wait...")
@@ -161,8 +260,6 @@ class BookSlotActivity : BaseActivity() {
                                             append("Rs. ")
                                             append(response.walletBalance.balance)
                                         }
-
-                                    showMinutesUI()
                                 }
                             }
                         }
@@ -265,7 +362,11 @@ class BookSlotActivity : BaseActivity() {
 
         // Get the current time in "HH:mm" format
         val calendar = Calendar.getInstance()
-        val currentTime = String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE))
+        val currentTime = String.format(
+            "%02d:%02d",
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE)
+        )
 
         val availableTimeSlots = generateTimeSlots(
             slotsItem.startTime!!,
@@ -285,7 +386,10 @@ class BookSlotActivity : BaseActivity() {
             Log.i(TAG, "setupTimeSlotsAdapter: ${selectedTimeSlot.startTime}:00")
             // Update UI with selected time frame
             binding.tvSlotsTime.visibility = View.VISIBLE
-            binding.bookSlotButton.visibility = View.VISIBLE
+            if (type == "chat")
+                binding.chatButton.visibility = View.VISIBLE
+            else
+                binding.callButton.visibility = View.VISIBLE
         }
 
         val gridLayoutManagerMinutes = GridLayoutManager(this, 4) // 3 columns
@@ -294,58 +398,60 @@ class BookSlotActivity : BaseActivity() {
     }
 
 
-    private fun bookSlots() {
+    private fun bookSlots(type: String) {
+        if (this@BookSlotActivity.astrologerPhoneNumber.isEmpty()) {
+            return
+        }
+
+        if (this@BookSlotActivity.slotId.isEmpty() && !isFreeUser && type != "chat") {
+            return
+        }
+
+        if (this@BookSlotActivity.selectedDuration < 0) {
+            Toast.makeText(
+                this@BookSlotActivity,
+                "Please select the minutes",
+                Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
+
+        if (this@BookSlotActivity.selectedStartTime.isEmpty() && !isFreeUser && type != "chat") {
+            Toast.makeText(this@BookSlotActivity, "Please select a time", Toast.LENGTH_SHORT)
+                .show()
+            return
+        }
+
+        Utils.showProgress(this@BookSlotActivity, "Please wait...")
         lifecycleScope.launch(Dispatchers.IO) {
-            if (this@BookSlotActivity.astrologerPhoneNumber.isEmpty()) {
-                return@launch
-            }
-
-            if (this@BookSlotActivity.slotId.isEmpty() && !isFreeUser) {
-                return@launch
-            }
-
-            if (this@BookSlotActivity.selectedDuration < 0) {
-                Toast.makeText(
-                    this@BookSlotActivity,
-                    "Please select the minutes",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@launch
-            }
-
-            if (this@BookSlotActivity.selectedStartTime.isEmpty() && !isFreeUser) {
-                Toast.makeText(this@BookSlotActivity, "Please select the slot", Toast.LENGTH_SHORT)
-                    .show()
-                return@launch
-            }
-
-            lifecycleScope.launch(Dispatchers.Main) {
-                Utils.showProgress(this@BookSlotActivity, "Please wait...")
-            }
-
             val headerMap = mutableMapOf<String, String>()
             headerMap["Content-Type"] = "application/json"
             headerMap["Authorization"] =
                 Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
 
             val jsonObjectBody = JSONObject()
+            jsonObjectBody.put("type", type)
             jsonObjectBody.put("astrologer_phone", this@BookSlotActivity.astrologerPhoneNumber)
-            if (!isFreeUser)
-                jsonObjectBody.put("slot_id", this@BookSlotActivity.slotId)
             jsonObjectBody.put("user_phone", KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID))
             jsonObjectBody.put("call_duration_minutes", this@BookSlotActivity.selectedDuration)
             jsonObjectBody.put(
                 "total_cost",
                 (this@BookSlotActivity.selectedDuration * this@BookSlotActivity.astrologerRate)
             )
-            if (!isFreeUser)
-                jsonObjectBody.put("booked_start_time", this@BookSlotActivity.selectedStartTime)
+            if (type == "chat") {
+                jsonObjectBody.put("booked_start_time", Utils.getCurrentTime())
+            } else {
+                if (!isFreeUser) {
+                    jsonObjectBody.put("booked_start_time", this@BookSlotActivity.selectedStartTime)
+                    jsonObjectBody.put("slot_id", this@BookSlotActivity.slotId)
+                }
+            }
             if (this@BookSlotActivity.isFreeUser)
                 jsonObjectBody.put("is_free", isFreeUser)
 
 
             OkHttpNetworkProvider.post(
-                BuildConfig.BASE_URL + "booking/book_slot",
+                BuildConfig.BASE_URL_V2 + "booking/book_slot",
                 jsonObjectBody,
                 headerMap,
                 null,
@@ -359,7 +465,10 @@ class BookSlotActivity : BaseActivity() {
                         if (response != null) {
                             Log.i(TAG, "onResponse: $response")
                             lifecycleScope.launch(Dispatchers.Main) {
-                                showDialog()
+                                if (type == "chat") {
+                                    getChatToken()
+                                } else
+                                    showDialog()
                             }
                         }
                     }
@@ -377,6 +486,102 @@ class BookSlotActivity : BaseActivity() {
                         }
                     }
                 })
+        }
+    }
+
+    private suspend fun getChatToken() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val headers = mutableMapOf<String, String>()
+            headers["Content-Type"] = "application/x-www-form-urlencoded"
+            headers["Authorization"] =
+                Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
+
+            val jsonObjectBody = JSONObject()
+            jsonObjectBody.put("phone", KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID))
+
+            OkHttpNetworkProvider.post(
+                BuildConfig.BASE_URL + "common/chat",
+                jsonObjectBody,
+                headers,
+                null,
+                null,
+                ChatTokenResponseModel::class.java,
+                object : OkHttpNetworkProvider.NetworkListener<ChatTokenResponseModel> {
+                    override fun onResponse(response: ChatTokenResponseModel?) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                            if (response != null) {
+                                Log.i(TAG, "onResponse: $response")
+                                if (response.error == false && !response.chatToken.isNullOrEmpty()) {
+                                    connectToChatClient(astrologerPhoneNumber, response.chatToken)
+                                } else {
+                                    Toast.makeText(
+                                        this@BookSlotActivity,
+                                        response.message ?: "Something went wrong!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onError(error: BaseErrorModel?) {
+                        Log.i(TAG, "onError: ")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                            Toast.makeText(
+                                this@BookSlotActivity,
+                                error?.message ?: "Something went wrong!",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                    }
+                })
+        }
+    }
+
+    private suspend fun connectToChatClient(astrologerPhone: String, token: String) {
+        val firstJob = CoroutineScope(Dispatchers.IO).launch {
+            SceytChatUIKit.connect(token)
+        }
+        firstJob.join()
+
+        val secondJob = CoroutineScope(Dispatchers.IO).launch {
+            SceytChatUIKit.chatUIFacade.userInteractor.updateProfile(
+                username = "",
+                firstName = KeyStorePref.getString(AppConstants.KEY_STORE_NAME),
+                lastName = "",
+                avatarUrl = null, // You can pass your avatar url here
+                metadataMap = null // You can pass you metadata here
+            )
+        }
+        secondJob.join()
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val response =
+                SceytChatUIKit.chatUIFacade.channelInteractor.findOrCreatePendingChannelByMembers(
+                    CreateChannelData(
+                        type = "direct",
+                        members = listOf(
+                            SceytMember(
+                                SceytUser("918840708648"),
+                                "owner" // TODO: Change with astrologerPhoneNumber in PROD
+                            )
+                        )
+                    )
+                )
+
+            CoroutineScope(Dispatchers.Main).launch {
+                if (response is SceytResponse.Success) {
+                    response.data?.let { sceytChannel ->
+                        val intent = Intent(this@BookSlotActivity, ChatActivity::class.java)
+                        intent.putExtra("CHANNEL", sceytChannel)
+                        intent.putExtra("astrologer_phone", "918840708648")
+                        startActivity(intent)
+                    }
+                }
+            }
         }
     }
 

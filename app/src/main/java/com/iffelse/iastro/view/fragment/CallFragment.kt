@@ -13,16 +13,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.iffelse.iastro.BuildConfig
-import com.iffelse.iastro.utils.KeyStorePref
-import com.iffelse.iastro.view.adapter.AstrologerAdapter
-import com.iffelse.iastro.view.adapter.BannerAdapter
 import com.iffelse.iastro.databinding.FragmentCallBinding
 import com.iffelse.iastro.model.Banner
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.AstrologerResponseModel
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
+import com.iffelse.iastro.view.adapter.AstrologerAdapter
+import com.iffelse.iastro.view.adapter.BannerAdapter
 import com.iffelse.iastro.view.ui.BookSlotActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -98,8 +98,8 @@ class CallFragment : Fragment() {
                                             AstrologerAdapter(
                                                 response.data,
                                                 requireActivity(),
-                                                object : AstrologerAdapter.CLickListener {
-                                                    override fun onClick(position: Int) {
+                                                object : AstrologerAdapter.AstrologerAdapterClickListener {
+                                                    override fun onChatClick(position: Int) {
                                                         val intent = Intent(
                                                             activity,
                                                             BookSlotActivity::class.java
@@ -112,6 +112,24 @@ class CallFragment : Fragment() {
                                                             "final_rate",
                                                             response.data[position]?.finalRate
                                                         )
+                                                        intent.putExtra("type", "chat")
+                                                        startActivity(intent)
+                                                    }
+
+                                                    override fun onCallClick(position: Int) {
+                                                        val intent = Intent(
+                                                            activity,
+                                                            BookSlotActivity::class.java
+                                                        )
+                                                        intent.putExtra(
+                                                            "astrologer_phone",
+                                                            response.data[position]?.phoneNumber
+                                                        )
+                                                        intent.putExtra(
+                                                            "final_rate",
+                                                            response.data[position]?.finalRate
+                                                        )
+                                                        intent.putExtra("type", "call")
                                                         startActivity(intent)
                                                     }
                                                 })

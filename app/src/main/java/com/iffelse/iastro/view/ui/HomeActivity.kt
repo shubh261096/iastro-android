@@ -22,6 +22,7 @@ import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.Utils
 import com.iffelse.iastro.view.fragment.CallFragment
+import com.iffelse.iastro.view.fragment.ChatListFragment
 import com.iffelse.iastro.view.fragment.HomeFragment
 import com.iffelse.iastro.view.fragment.TrendingFragment
 import kotlinx.coroutines.Dispatchers
@@ -99,6 +100,14 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
                     binding.toolbarImage.clearAnimation()
                     binding.toolbarImage.visibility = View.GONE
                     loadFragment(TrendingFragment())
+                    true
+                }
+
+                R.id.chat -> {
+                    binding.toolbarTitle.text = resources.getText(R.string.chat)
+                    binding.toolbarImage.clearAnimation()
+                    binding.toolbarImage.visibility = View.GONE
+                    loadFragment(ChatListFragment())
                     true
                 }
 

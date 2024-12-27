@@ -13,16 +13,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.iffelse.iastro.BuildConfig
-import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.R
-import com.iffelse.iastro.view.adapter.AstrologerAdapter
 import com.iffelse.iastro.databinding.FragmentHomeBinding
 import com.iffelse.iastro.model.BaseErrorModel
 import com.iffelse.iastro.model.response.AstrologerResponseModel
+import com.iffelse.iastro.model.response.WalletResponseModel
 import com.iffelse.iastro.utils.AppConstants
+import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
 import com.iffelse.iastro.utils.RemoteConfigUtils
 import com.iffelse.iastro.utils.Utils
+import com.iffelse.iastro.view.adapter.AstrologerAdapter
 import com.iffelse.iastro.view.ui.BookSlotActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,6 +33,7 @@ class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var astrologerAdapter: AstrologerAdapter
     private lateinit var context: Context
+    private var isFreeUser = false
 
     // Define an interface
     interface OnCardClickListener {
@@ -99,7 +101,55 @@ class HomeFragment : Fragment() {
 
         binding.recyclerViewAstrologers.layoutManager = LinearLayoutManager(requireActivity())
 
+        showAstrologersUI()
+    }
 
+    private fun fetchWalletBalanceUI() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val headers = mutableMapOf<String, String>()
+            headers["Content-Type"] = "application/json"
+            headers["Authorization"] =
+                Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
+            OkHttpNetworkProvider.get(
+                BuildConfig.BASE_URL + "wallet/get_balance/" + KeyStorePref.getString(
+                    AppConstants.KEY_STORE_USER_ID
+                ),
+                headers,
+                null,
+                null,
+                WalletResponseModel::class.java,
+                object : OkHttpNetworkProvider.NetworkListener<WalletResponseModel> {
+                    override fun onResponse(response: WalletResponseModel?) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                        }
+                        if (response?.walletBalance != null) {
+                            if (!response.walletBalance.balance.isNullOrEmpty()) {
+                                if (response.walletBalance.isFree == "1") {
+                                    this@HomeFragment.isFreeUser = true
+
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onError(error: BaseErrorModel?) {
+                        Log.i(TAG, "onError: ")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                            Toast.makeText(
+                                activity,
+                                error?.message ?: "Something went wrong!",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                    }
+                })
+        }
+    }
+
+    private fun showAstrologersUI() {
         lifecycleScope.launch(Dispatchers.IO) {
             val headers = mutableMapOf<String, String>()
             headers["Content-Type"] = "application/json"
@@ -126,8 +176,9 @@ class HomeFragment : Fragment() {
                                                 AstrologerAdapter(
                                                     response.data,
                                                     requireActivity(),
-                                                    object : AstrologerAdapter.CLickListener {
-                                                        override fun onClick(position: Int) {
+                                                    object :
+                                                        AstrologerAdapter.AstrologerAdapterClickListener {
+                                                        override fun onChatClick(position: Int) {
                                                             val intent = Intent(
                                                                 activity,
                                                                 BookSlotActivity::class.java
@@ -140,6 +191,24 @@ class HomeFragment : Fragment() {
                                                                 "final_rate",
                                                                 response.data[position]?.finalRate
                                                             )
+                                                            intent.putExtra("type", "chat")
+                                                            startActivity(intent)
+                                                        }
+
+                                                        override fun onCallClick(position: Int) {
+                                                            val intent = Intent(
+                                                                activity,
+                                                                BookSlotActivity::class.java
+                                                            )
+                                                            intent.putExtra(
+                                                                "astrologer_phone",
+                                                                response.data[position]?.phoneNumber
+                                                            )
+                                                            intent.putExtra(
+                                                                "final_rate",
+                                                                response.data[position]?.finalRate
+                                                            )
+                                                            intent.putExtra("type", "call")
                                                             startActivity(intent)
                                                         }
                                                     })
@@ -155,15 +224,15 @@ class HomeFragment : Fragment() {
 
                     override fun onError(error: BaseErrorModel?) {
                         Log.i(TAG, "onError: ")
-                        lifecycleScope.launch(Dispatchers.Main) {
-                            binding.labelOurAstrologer.visibility = View.GONE
-                            Toast.makeText(
-                                activity,
-                                error?.message ?: "Something went wrong",
-                                Toast.LENGTH_SHORT
-                            )
-                                .show()
-                        }
+                        if (isAdded && !isDetached)
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                binding.labelOurAstrologer.visibility = View.GONE
+                                Toast.makeText(
+                                    activity,
+                                    error?.message ?: "Something went wrong",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                     }
                 })
         }
