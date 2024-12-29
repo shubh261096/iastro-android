@@ -34,6 +34,7 @@ import com.iffelse.iastro.view.adapter.SlotAdapter
 import com.iffelse.iastro.view.adapter.TimeSlotsAdapter
 import com.iffelse.iastro.view.adapter.TypeAdapter
 import com.sceyt.chatuikit.SceytChatUIKit
+import com.sceyt.chatuikit.data.managers.connection.ConnectionEventManager
 import com.sceyt.chatuikit.data.models.SceytResponse
 import com.sceyt.chatuikit.data.models.channels.CreateChannelData
 import com.sceyt.chatuikit.data.models.channels.SceytMember
@@ -547,16 +548,21 @@ class BookSlotActivity : BaseActivity() {
         }
         firstJob.join()
 
-        val secondJob = CoroutineScope(Dispatchers.IO).launch {
-            SceytChatUIKit.chatUIFacade.userInteractor.updateProfile(
-                username = "",
-                firstName = KeyStorePref.getString(AppConstants.KEY_STORE_NAME),
-                lastName = "",
-                avatarUrl = null, // You can pass your avatar url here
-                metadataMap = null // You can pass you metadata here
-            )
+        lifecycleScope.launch {
+            val result = ConnectionEventManager.awaitToConnectSceyt()
+            if (result) {
+                val secondJob = CoroutineScope(Dispatchers.Main).launch {
+                    SceytChatUIKit.chatUIFacade.userInteractor.updateProfile(
+                        username = "",
+                        firstName = KeyStorePref.getString(AppConstants.KEY_STORE_NAME),
+                        lastName = "",
+                        avatarUrl = null, // You can pass your avatar URL here
+                        metadataMap = null // You can pass your metadata here
+                    )
+                }
+                secondJob.join()
+            }
         }
-        secondJob.join()
 
         CoroutineScope(Dispatchers.Main).launch {
             val response =
@@ -577,7 +583,7 @@ class BookSlotActivity : BaseActivity() {
                     response.data?.let { sceytChannel ->
                         val intent = Intent(this@BookSlotActivity, ChatActivity::class.java)
                         intent.putExtra("CHANNEL", sceytChannel)
-                        intent.putExtra("astrologer_phone", "918840708648")
+                        intent.putExtra("astrologer_phone", astrologerPhone)
                         startActivity(intent)
                     }
                 }
