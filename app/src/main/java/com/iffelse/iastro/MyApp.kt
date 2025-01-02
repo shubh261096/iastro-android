@@ -5,6 +5,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.inappmessaging.FirebaseInAppMessaging
+import com.iffelse.iastro.utils.AppConstants
 import com.iffelse.iastro.utils.KeyStorePref
 import com.razorpay.Checkout
 import com.sceyt.chatuikit.SceytChatUIKit
@@ -28,13 +29,24 @@ class MyApp : Application() {
          */
         Checkout.preload(this)
 
-        SceytChatUIKit.initialize(this,
-            apiUrl = "https://us-ohio-api.sceyt.com",
-            appId = "y2k4jg28xy",
-            clientId = UUID.randomUUID().toString(),
-            enableDatabase = true)
+        if (!KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID).isNullOrEmpty())
+            SceytChatUIKit.initialize(
+                this,
+                apiUrl = "https://us-ohio-api.sceyt.com",
+                appId = "y2k4jg28xy",
+                clientId = KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!,
+                enableDatabase = true
+            )
+        else
+            SceytChatUIKit.initialize(
+                this,
+                apiUrl = "https://us-ohio-api.sceyt.com",
+                appId = "y2k4jg28xy",
+                clientId = UUID.randomUUID().toString(),
+                enableDatabase = true
+            )
 
-        MessageInputStyle.styleCustomizer  = StyleCustomizer { context, style ->
+        MessageInputStyle.styleCustomizer = StyleCustomizer { context, style ->
             style.copy(
                 enableSendAttachment = false,
                 enableVoiceRecord = false

@@ -19,6 +19,9 @@ data class BookingsHistoryItem(
 	@field:SerializedName("booking_id")
 	val bookingId: String? = null,
 
+	@field:SerializedName("type")
+	val type: String? = null,
+
 	@field:SerializedName("astrologer_phone")
 	val astrologerPhone: String? = null,
 

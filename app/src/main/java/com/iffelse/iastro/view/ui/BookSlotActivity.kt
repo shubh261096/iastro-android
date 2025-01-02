@@ -42,6 +42,7 @@ import com.sceyt.chatuikit.data.models.messages.SceytUser
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.time.LocalTime
 import java.util.Calendar
@@ -204,7 +205,11 @@ class BookSlotActivity : BaseActivity() {
                         lifecycleScope.launch(Dispatchers.Main) {
                             if (response != null) {
                                 if (response.error == false) {
-                                    response.isBusy?.let { showTypeUI(it) }
+                                    if (response.isOnline == 1)
+                                        response.isBusy?.let { showTypeUI(it) }
+                                    else {
+                                        showTypeUI(1)
+                                    }
                                 }
                             }
                         }
@@ -543,29 +548,29 @@ class BookSlotActivity : BaseActivity() {
     }
 
     private suspend fun connectToChatClient(astrologerPhone: String, token: String) {
-        val firstJob = CoroutineScope(Dispatchers.IO).launch {
+        // Step 1: Connect to the chat client
+        withContext(Dispatchers.IO) {
             SceytChatUIKit.connect(token)
         }
-        firstJob.join()
 
-        lifecycleScope.launch {
-            val result = ConnectionEventManager.awaitToConnectSceyt()
-            if (result) {
-                val secondJob = CoroutineScope(Dispatchers.Main).launch {
-                    SceytChatUIKit.chatUIFacade.userInteractor.updateProfile(
-                        username = "",
-                        firstName = KeyStorePref.getString(AppConstants.KEY_STORE_NAME),
-                        lastName = "",
-                        avatarUrl = null, // You can pass your avatar URL here
-                        metadataMap = null // You can pass your metadata here
-                    )
-                }
-                secondJob.join()
-            }
+        // Step 2: Wait for connection result and update profile
+        val connectionResult = withContext(Dispatchers.IO) {
+            ConnectionEventManager.awaitToConnectSceyt()
         }
 
-        CoroutineScope(Dispatchers.Main).launch {
-            val response =
+        if (connectionResult) {
+            withContext(Dispatchers.Main) {
+                SceytChatUIKit.chatUIFacade.userInteractor.updateProfile(
+                    username = "",
+                    firstName = KeyStorePref.getString(AppConstants.KEY_STORE_NAME),
+                    lastName = "",
+                    avatarUrl = null, // Pass your avatar URL here
+                    metadataMap = null // Pass metadata if needed
+                )
+            }
+
+            // Step 3: Create or find the pending channel and navigate to the chat activity
+            val response = withContext(Dispatchers.IO) {
                 SceytChatUIKit.chatUIFacade.channelInteractor.findOrCreatePendingChannelByMembers(
                     CreateChannelData(
                         type = "direct",
@@ -577,17 +582,22 @@ class BookSlotActivity : BaseActivity() {
                         )
                     )
                 )
+            }
 
-            CoroutineScope(Dispatchers.Main).launch {
-                if (response is SceytResponse.Success) {
-                    response.data?.let { sceytChannel ->
-                        val intent = Intent(this@BookSlotActivity, ChatActivity::class.java)
-                        intent.putExtra("CHANNEL", sceytChannel)
-                        intent.putExtra("astrologer_phone", astrologerPhone)
+            if (response is SceytResponse.Success) {
+                response.data?.let { sceytChannel ->
+                    withContext(Dispatchers.Main) {
+                        val intent = Intent(this@BookSlotActivity, ChatActivity::class.java).apply {
+                            putExtra("CHANNEL", sceytChannel)
+                            putExtra("astrologer_phone", astrologerPhone)
+                        }
                         startActivity(intent)
                     }
                 }
             }
+        } else {
+            // Handle connection failure if needed
+            println("Failed to connect to the chat client.")
         }
     }
 

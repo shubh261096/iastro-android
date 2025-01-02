@@ -7,6 +7,9 @@ data class AstrologerStatusResponseModel(
 	@field:SerializedName("is_busy")
 	val isBusy: Int? = null,
 
+	@field:SerializedName("is_online")
+	val isOnline: Int? = null,
+
 	@field:SerializedName("error")
 	val error: Boolean? = null,
 

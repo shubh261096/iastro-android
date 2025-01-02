@@ -40,6 +40,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         super.onNewToken(token)
+        FirebaseMessagingDelegate.registerFirebaseToken(token)
         Log.i("TAG", "onNewToken: $token")
         if (KeyStorePref.getBoolean(AppConstants.KEY_STORE_IS_FCM_TOKEN_SENT)) {
             if (!KeyStorePref.getString(AppConstants.KEY_STORE_FCM_TOKEN).equals(token)) {

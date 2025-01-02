@@ -9,6 +9,7 @@ import com.iffelse.iastro.R
 import com.iffelse.iastro.databinding.ItemHistoryBinding
 import com.iffelse.iastro.model.response.BookingsHistoryItem
 import com.iffelse.iastro.utils.Utils
+import com.sceyt.chatuikit.extensions.firstCharToUppercase
 
 class BookingHistoryAdapter(private val bookingList: List<BookingsHistoryItem?>?) :
     RecyclerView.Adapter<BookingHistoryAdapter.BookingViewHolder>() {
@@ -62,6 +63,13 @@ class BookingHistoryAdapter(private val bookingList: List<BookingsHistoryItem?>?
             } else {
                 binding.tvTimeSlot.visibility = View.VISIBLE
                 binding.tvTimeSlot.text = "Booked slot time: ${booking.bookedStartTime}"
+            }
+
+            if (booking.type.isNullOrEmpty()) {
+                binding.tvType.visibility = View.GONE
+            } else {
+                binding.tvType.visibility = View.VISIBLE
+                binding.tvType.text = booking.type.firstCharToUppercase()
             }
         }
     }

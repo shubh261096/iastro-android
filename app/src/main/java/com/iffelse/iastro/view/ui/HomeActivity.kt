@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
@@ -16,6 +17,7 @@ import com.iffelse.iastro.BuildConfig
 import com.iffelse.iastro.R
 import com.iffelse.iastro.databinding.ActivityHomeBinding
 import com.iffelse.iastro.model.BaseErrorModel
+import com.iffelse.iastro.model.response.ChatTokenResponseModel
 import com.iffelse.iastro.model.response.CommonResponseModel
 import com.iffelse.iastro.utils.AppConstants
 import com.iffelse.iastro.utils.KeyStorePref
@@ -25,8 +27,15 @@ import com.iffelse.iastro.view.fragment.CallFragment
 import com.iffelse.iastro.view.fragment.ChatListFragment
 import com.iffelse.iastro.view.fragment.HomeFragment
 import com.iffelse.iastro.view.fragment.TrendingFragment
+import com.sceyt.chatuikit.SceytChatUIKit
+import com.sceyt.chatuikit.data.managers.connection.ConnectionEventManager
+import com.sceyt.chatuikit.data.models.SceytResponse
+import com.sceyt.chatuikit.data.models.channels.CreateChannelData
+import com.sceyt.chatuikit.data.models.channels.SceytMember
+import com.sceyt.chatuikit.data.models.messages.SceytUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 
 class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
@@ -136,7 +145,87 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
         subscribeToZodiacSignTopic()
         updateFcmTokenApi()
         updateDrawerUI()
+        getChatToken()
     }
+
+    private fun getChatToken() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val headers = mutableMapOf<String, String>()
+            headers["Content-Type"] = "application/x-www-form-urlencoded"
+            headers["Authorization"] =
+                Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
+
+            val jsonObjectBody = JSONObject()
+            jsonObjectBody.put("phone", KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID))
+
+            OkHttpNetworkProvider.post(
+                BuildConfig.BASE_URL + "common/chat",
+                jsonObjectBody,
+                headers,
+                null,
+                null,
+                ChatTokenResponseModel::class.java,
+                object : OkHttpNetworkProvider.NetworkListener<ChatTokenResponseModel> {
+                    override fun onResponse(response: ChatTokenResponseModel?) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                            if (response != null) {
+                                Log.i(TAG, "onResponse: $response")
+                                if (response.error == false && !response.chatToken.isNullOrEmpty()) {
+                                    connectToChatClient(response.chatToken)
+                                } else {
+                                    Toast.makeText(
+                                        this@HomeActivity,
+                                        response.message ?: "Something went wrong!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                        }
+                    }
+
+                    override fun onError(error: BaseErrorModel?) {
+                        Log.i(TAG, "onError: ")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                            Toast.makeText(
+                                this@HomeActivity,
+                                error?.message ?: "Something went wrong!",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                    }
+                })
+        }
+    }
+    private suspend fun connectToChatClient(token: String) {
+        // Step 1: Connect to the chat client
+        withContext(Dispatchers.IO) {
+            SceytChatUIKit.connect(token)
+        }
+
+        // Step 2: Wait for connection result and update profile
+        val connectionResult = withContext(Dispatchers.IO) {
+            ConnectionEventManager.awaitToConnectSceyt()
+        }
+
+        if (connectionResult) {
+            withContext(Dispatchers.Main) {
+                SceytChatUIKit.chatUIFacade.userInteractor.updateProfile(
+                    username = "",
+                    firstName = KeyStorePref.getString(AppConstants.KEY_STORE_NAME),
+                    lastName = "",
+                    avatarUrl = null, // Pass your avatar URL here
+                    metadataMap = null // Pass metadata if needed
+                )
+            }
+        } else {
+            // Handle connection failure if needed
+            println("Failed to connect to the chat client.")
+        }
+    }
+
 
     private fun updateDrawerUI() {
         binding.includeDrawerLayout.navHeader.setOnClickListener {
