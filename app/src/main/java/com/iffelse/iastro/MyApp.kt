@@ -29,22 +29,17 @@ class MyApp : Application() {
          */
         Checkout.preload(this)
 
-        if (!KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID).isNullOrEmpty())
-            SceytChatUIKit.initialize(
-                this,
-                apiUrl = "https://us-ohio-api.sceyt.com",
-                appId = "y2k4jg28xy",
-                clientId = KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!,
-                enableDatabase = true
-            )
-        else
-            SceytChatUIKit.initialize(
-                this,
-                apiUrl = "https://us-ohio-api.sceyt.com",
-                appId = "y2k4jg28xy",
-                clientId = UUID.randomUUID().toString(),
-                enableDatabase = true
-            )
+        if (KeyStorePref.getString(AppConstants.KEY_STORE_SCEYT_CLIENT_ID).isNullOrEmpty()) {
+            val clientId = UUID.randomUUID().toString()
+            KeyStorePref.putString(AppConstants.KEY_STORE_SCEYT_CLIENT_ID, clientId)
+        }
+        SceytChatUIKit.initialize(
+            this,
+            apiUrl = "https://us-ohio-api.sceyt.com",
+            appId = "y2k4jg28xy",
+            clientId = KeyStorePref.getString(AppConstants.KEY_STORE_SCEYT_CLIENT_ID)!!,
+            enableDatabase = true
+        )
 
         MessageInputStyle.styleCustomizer = StyleCustomizer { context, style ->
             style.copy(

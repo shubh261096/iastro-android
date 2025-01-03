@@ -8,4 +8,5 @@ object AppConstants {
     val KEY_STORE_DOB = "dob"
     val KEY_STORE_FCM_TOKEN = "fcmToken"
     val KEY_STORE_IS_FCM_TOKEN_SENT = "isFcmTokenSent"
+    val KEY_STORE_SCEYT_CLIENT_ID = "sceytClientId"
 }
