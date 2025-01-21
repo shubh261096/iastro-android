@@ -33,7 +33,7 @@ class ProfileActivity : BaseActivity() {
         private const val TAG = "ProfileActivity"
     }
 
-    private lateinit var convertedTime: String
+    private var convertedTime: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

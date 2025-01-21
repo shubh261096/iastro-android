@@ -39,7 +39,6 @@ import com.sceyt.chatuikit.data.models.SceytResponse
 import com.sceyt.chatuikit.data.models.channels.CreateChannelData
 import com.sceyt.chatuikit.data.models.channels.SceytMember
 import com.sceyt.chatuikit.data.models.messages.SceytUser
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -301,16 +300,25 @@ class BookSlotActivity : BaseActivity() {
                 AllSlotsResponseModel::class.java,
                 object : OkHttpNetworkProvider.NetworkListener<AllSlotsResponseModel> {
                     override fun onResponse(response: AllSlotsResponseModel?) {
-                        if (response != null) {
-                            if (response.error == false) {
-                                lifecycleScope.launch(Dispatchers.Main) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            if (response != null) {
+                                if (response.error == false) {
                                     slotAdapter = SlotAdapter { slot ->
                                         binding.rvTimeSlots.visibility = View.VISIBLE
                                         loadBookedSlotsBySlotId(slot)
                                     }
+                                    binding.tvAvailableSlots.visibility = View.VISIBLE
+                                    binding.rvAvailableSlots.visibility = View.VISIBLE
                                     binding.rvAvailableSlots.adapter = slotAdapter
                                     slotAdapter.updateSlots(response.allSlots)
+                                } else {
+                                    Toast.makeText(this@BookSlotActivity, "No Slots available", Toast.LENGTH_SHORT).show()
+                                    binding.tvAvailableSlots.visibility = View.GONE
+                                    binding.rvAvailableSlots.visibility = View.GONE
                                 }
+                            } else {
+                                binding.tvAvailableSlots.visibility = View.GONE
+                                binding.rvAvailableSlots.visibility = View.GONE
                             }
                         }
                     }
@@ -384,23 +392,31 @@ class BookSlotActivity : BaseActivity() {
             slot.startTime >= currentTime // Ensure slot start time is after current time
         }
 
-        // Set up the TimeSlotsAdapter
-        val timeSlotsAdapter = TimeSlotsAdapter(availableTimeSlots) { selectedTimeSlot ->
+        if (availableTimeSlots.isNotEmpty()) {
+            // Set up the TimeSlotsAdapter
+            val timeSlotsAdapter = TimeSlotsAdapter(availableTimeSlots) { selectedTimeSlot ->
 
-            this.selectedStartTime = "${selectedTimeSlot.startTime}:00"
-            this.slotId = slotsItem.slotId!!
-            Log.i(TAG, "setupTimeSlotsAdapter: ${selectedTimeSlot.startTime}:00")
-            // Update UI with selected time frame
-            binding.tvSlotsTime.visibility = View.VISIBLE
-            if (type == "chat")
-                binding.chatButton.visibility = View.VISIBLE
-            else
-                binding.callButton.visibility = View.VISIBLE
+                this.selectedStartTime = "${selectedTimeSlot.startTime}:00"
+                this.slotId = slotsItem.slotId!!
+                Log.i(TAG, "setupTimeSlotsAdapter: ${selectedTimeSlot.startTime}:00")
+                // Update UI with selected time frame
+                binding.tvSlotsTime.visibility = View.VISIBLE
+                if (type == "chat") {
+                    binding.chatButton.visibility = View.VISIBLE
+                    binding.callButton.visibility = View.GONE
+                } else {
+                    binding.callButton.visibility = View.VISIBLE
+                    binding.chatButton.visibility = View.GONE
+                }
+            }
+
+            val gridLayoutManagerMinutes = GridLayoutManager(this, 4) // 3 columns
+            binding.rvTimeSlots.layoutManager = gridLayoutManagerMinutes
+            binding.rvTimeSlots.adapter = timeSlotsAdapter
+        } else {
+            binding.tvSlotsTime.visibility = View.GONE
+            Toast.makeText(this@BookSlotActivity, "No Slots available", Toast.LENGTH_SHORT).show()
         }
-
-        val gridLayoutManagerMinutes = GridLayoutManager(this, 4) // 3 columns
-        binding.rvTimeSlots.layoutManager = gridLayoutManagerMinutes
-        binding.rvTimeSlots.adapter = timeSlotsAdapter
     }
 
 
@@ -648,15 +664,16 @@ class BookSlotActivity : BaseActivity() {
         bookedSlots: List<BookingsItem?> // Accept booked slots list
     ): List<TimeSlot> {
         val timeSlots = mutableListOf<TimeSlot>()
-        var currentTime = LocalTime.parse(startTime)
         val finalTime = LocalTime.parse(endTime)
+        var currentTime = LocalTime.now()
+            .coerceAtLeast(LocalTime.parse(startTime)) // Use the later of current time or startTime
 
         // Avoid generating slots if intervalMinutes is invalid or start is after end
         if (intervalMinutes <= 0 || currentTime.isAfter(finalTime)) {
             return timeSlots
         }
 
-        // Add a check to limit the number of time slots generated
+        // Limit the number of time slots generated to avoid infinite loops
         val maxSlots = 100 // Adjust this number based on your needs
         var slotCount = 0
 
@@ -664,7 +681,7 @@ class BookSlotActivity : BaseActivity() {
             val nextTime = currentTime.plusMinutes(intervalMinutes.toLong())
 
             // Break if the nextTime crosses into the next day
-            if (nextTime.isBefore(currentTime) || nextTime.isAfter(finalTime)) break
+            if (nextTime.isAfter(finalTime)) break
 
             // Check if the time slot is booked
             val isBooked = bookedSlots.any { bookedSlot ->
@@ -675,14 +692,13 @@ class BookSlotActivity : BaseActivity() {
                 } ?: false
             }
 
-            // Add each time interval as a time slot (without calling toString() repeatedly)
+            // Add each time interval as a time slot
             timeSlots.add(TimeSlot(currentTime.toString(), nextTime.toString(), isBooked))
 
             // Move to the next time slot
             currentTime = nextTime
             slotCount++
         }
-
 
         return timeSlots
     }
