@@ -1,6 +1,7 @@
 package com.iffelse.iastro.view.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
@@ -10,6 +11,8 @@ import android.view.Window
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.iffelse.iastro.BuildConfig
@@ -33,6 +36,7 @@ import com.iffelse.iastro.view.adapter.MinutesAdapter
 import com.iffelse.iastro.view.adapter.SlotAdapter
 import com.iffelse.iastro.view.adapter.TimeSlotsAdapter
 import com.iffelse.iastro.view.adapter.TypeAdapter
+import com.iffelse.iastro.view.fragment.AddMoneyBottomSheet
 import com.sceyt.chatuikit.SceytChatUIKit
 import com.sceyt.chatuikit.data.managers.connection.ConnectionEventManager
 import com.sceyt.chatuikit.data.models.SceytResponse
@@ -61,6 +65,8 @@ class BookSlotActivity : BaseActivity() {
 
     private lateinit var slotAdapter: SlotAdapter
     private lateinit var binding: ActivitySlotBookingsBinding
+
+    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,6 +125,16 @@ class BookSlotActivity : BaseActivity() {
             finish()
         }
         fetchAstrologerStatus()
+
+        // Register the activity result launcher
+        activityResultLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // Handle the result from SecondActivity
+                updateWalletBalanceUI()
+            }
+        }
     }
 
     private fun showTypeUI(isBusy: Int) {
@@ -154,14 +170,14 @@ class BookSlotActivity : BaseActivity() {
         binding.rvMinutes.layoutManager = gridLayoutManagerMinutes
 
         val minutesList: List<Int> = if (this@BookSlotActivity.isFreeUser)
-            listOf(2, 5, 10, 15, 20, 25, 30) // Add more minutes as needed
+            listOf(3, 5, 10, 15, 20, 25, 30) // Add more minutes as needed
         else
             listOf(5, 10, 15, 20, 25, 30) // Add more minutes as needed
 
 
         val listener = object : MinutesAdapter.OnMinuteSelectedListener {
             override fun onMinuteSelected(minute: Int) {
-                this@BookSlotActivity.isFreeUser = minute == 2
+                this@BookSlotActivity.isFreeUser = minute == 3
                 selectedDuration = minute
                 if (type == "chat") {
                     binding.chatButton.visibility = View.VISIBLE
@@ -716,6 +732,14 @@ class BookSlotActivity : BaseActivity() {
 
     private fun promptUserToAddMoney() {
         // Show a dialog or redirect user to add money in the wallet
+        val bottomSheet = AddMoneyBottomSheet(walletBalance) { amount ->
+            // Here, you can start the payment process
+            val intent = Intent(this@BookSlotActivity, PaymentActivity::class.java)
+            intent.putExtra("amount", amount * 100)
+            activityResultLauncher.launch(intent)
+        }
+        bottomSheet.show(supportFragmentManager, "AddMoneyBottomSheet")
+
     }
 
     companion object {

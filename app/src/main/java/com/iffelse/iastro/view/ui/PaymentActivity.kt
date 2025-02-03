@@ -55,7 +55,10 @@ class PaymentActivity : AppCompatActivity(),
             options.put("currency", "INR")
             options.put("amount", amount)
             val preFill = JSONObject()
-            preFill.put("email", "shubham@lazyclick.in")
+            if (!KeyStorePref.getString(AppConstants.KEY_STORE_EMAIL).isNullOrEmpty())
+                preFill.put("email", KeyStorePref.getString(AppConstants.KEY_STORE_EMAIL))
+            else
+                preFill.put("email", "shubham@lazyclick.in")
             preFill.put(
                 "contact",
                 KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)?.substring(2)
@@ -182,7 +185,11 @@ class PaymentActivity : AppCompatActivity(),
                         Log.i(TAG, "onError: ")
                         lifecycleScope.launch(Dispatchers.Main) {
                             Utils.hideProgress()
-                            Toast.makeText(this@PaymentActivity, error?.message ?: "Something went wrong!", Toast.LENGTH_SHORT)
+                            Toast.makeText(
+                                this@PaymentActivity,
+                                error?.message ?: "Something went wrong!",
+                                Toast.LENGTH_SHORT
+                            )
                                 .show()
                             finish()
                         }

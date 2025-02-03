@@ -199,6 +199,12 @@ class LoginActivity : BaseActivity() {
                                                             response.user.dob
                                                         )
                                                     }
+                                                    if (!response.user.email.isNullOrEmpty()) {
+                                                        KeyStorePref.putString(
+                                                            AppConstants.KEY_STORE_EMAIL,
+                                                            response.user.email
+                                                        )
+                                                    }
                                                     val intent =
                                                         Intent(
                                                             this@LoginActivity,
