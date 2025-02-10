@@ -42,7 +42,7 @@ class MinutesAdapter(
         private val tvTimeSlot: TextView = itemView.findViewById(R.id.tvTimeSlot)
 
         fun bind(timeSlot: Int, isSelected: Boolean) {
-            if (timeSlot == 2) {
+            if (timeSlot == 3) {
                 tvTimeSlot.text = "FREE"
             } else {
                 tvTimeSlot.text = "$timeSlot mins"

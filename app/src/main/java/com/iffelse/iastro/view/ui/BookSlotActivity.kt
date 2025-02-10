@@ -48,6 +48,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 
@@ -708,8 +709,10 @@ class BookSlotActivity : BaseActivity() {
                 } ?: false
             }
 
+            // Define the formatter to format time as HH:mm
+            val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             // Add each time interval as a time slot
-            timeSlots.add(TimeSlot(currentTime.toString(), nextTime.toString(), isBooked))
+            timeSlots.add(TimeSlot(currentTime.format(timeFormatter), nextTime.format(timeFormatter), isBooked))
 
             // Move to the next time slot
             currentTime = nextTime
