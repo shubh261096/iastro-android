@@ -52,9 +52,6 @@ class HomeActivity : BaseActivity(), HomeFragment.OnCardClickListener {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.title = ""
-
         // Set up the click listener for the custom button
         binding.toggle.setOnClickListener {
             if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {

@@ -112,6 +112,7 @@ class CallFragment : Fragment() {
                                                             "final_rate",
                                                             response.data[position]?.finalRate
                                                         )
+                                                        intent.putExtra("astrologer_name", response.data[position]?.name)
                                                         intent.putExtra("type", "chat")
                                                         startActivity(intent)
                                                     }
@@ -129,6 +130,7 @@ class CallFragment : Fragment() {
                                                             "final_rate",
                                                             response.data[position]?.finalRate
                                                         )
+                                                        intent.putExtra("astrologer_name", response.data[position]?.name)
                                                         intent.putExtra("type", "call")
                                                         startActivity(intent)
                                                     }

@@ -152,3 +152,48 @@
 -keep class com.sceyt.chatuikit.** { *; }
 -keep class com.masoudss.** { *; }
 -dontwarn com.masoudss.**
+
+# Keep ZegoCloud SDK classes
+-keep class im.zego.** { *; }
+-keep class com.itgsa.** { *; }
+-keep class com.zego.** { *; }
+
+# Keep ZegoUIKit classes
+-keep class com.zegocloud.** { *; }
+
+# Keep all annotations used by ZegoCloud
+-keepattributes *Annotation*
+
+# Prevent obfuscation of methods and classes related to JNI (native libraries)
+-keepclasseswithmembers class * {
+    native <methods>;
+}
+
+# Keep Parcelable implementations (for passing data)
+-keep class * implements android.os.Parcelable { *; }
+
+# Keep all enums
+-keepclassmembers enum * { *; }
+
+# Prevent obfuscation of Zego event listeners and callbacks
+-keepclassmembers class * {
+    void onUserJoin(...);
+    void onUserLeave(...);
+    void onRoomUserUpdate(...);
+    void onCallAccepted(...);
+    void onCallEnded(...);
+    void onError(...);
+}
+
+# Keep Retrofit, OkHttp, and Gson (if used internally by ZegoCloud)
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**
+-dontwarn com.google.gson.**
+
+# Keep R8 from removing any unused code inside ZegoCloud SDK
+-keep class * extends im.zego.** { *; }
+-keep class * extends com.zego.** { *; }
+
+# Keep logging (optional)
+-assumenosideeffects class android.util.Log { *; }
+-dontwarn com.itgsa.opensdk.mediaunit.KaraokeMediaHelper

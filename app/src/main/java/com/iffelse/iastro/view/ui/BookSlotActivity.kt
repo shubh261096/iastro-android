@@ -31,6 +31,7 @@ import com.iffelse.iastro.model.response.slots.TimeSlot
 import com.iffelse.iastro.utils.AppConstants
 import com.iffelse.iastro.utils.KeyStorePref
 import com.iffelse.iastro.utils.OkHttpNetworkProvider
+import com.iffelse.iastro.utils.RemoteConfigUtils
 import com.iffelse.iastro.utils.Utils
 import com.iffelse.iastro.view.adapter.MinutesAdapter
 import com.iffelse.iastro.view.adapter.SlotAdapter
@@ -43,6 +44,17 @@ import com.sceyt.chatuikit.data.models.SceytResponse
 import com.sceyt.chatuikit.data.models.channels.CreateChannelData
 import com.sceyt.chatuikit.data.models.channels.SceytMember
 import com.sceyt.chatuikit.data.models.messages.SceytUser
+import com.zegocloud.uikit.internal.ZegoUIKitLanguage
+import com.zegocloud.uikit.plugin.invitation.ZegoInvitationType
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallConfig
+import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService
+import com.zegocloud.uikit.prebuilt.call.config.DurationUpdateListener
+import com.zegocloud.uikit.prebuilt.call.config.ZegoCallDurationConfig
+import com.zegocloud.uikit.prebuilt.call.event.CallEndListener
+import com.zegocloud.uikit.prebuilt.call.invite.ZegoUIKitPrebuiltCallInvitationConfig
+import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoTranslationText
+import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoUIKitPrebuiltCallConfigProvider
+import com.zegocloud.uikit.service.defines.ZegoUIKitUser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,6 +70,7 @@ class BookSlotActivity : BaseActivity() {
     private var walletBalance: Double = 0.00
     private var astrologerRate: Double = 0.00
     private var astrologerPhoneNumber: String = ""
+    private var astrologerName: String = ""
     private var slotId: String = ""
     private var selectedStartTime: String = ""
     private var isFreeUser: Boolean = false
@@ -79,6 +92,8 @@ class BookSlotActivity : BaseActivity() {
                 astrologerRate = intent.getStringExtra("final_rate")?.toDouble()!!
             if (intent.hasExtra("astrologer_phone"))
                 astrologerPhoneNumber = intent.getStringExtra("astrologer_phone")!!
+            if (intent.hasExtra("astrologer_name"))
+                astrologerName = intent.getStringExtra("astrologer_name")!!
             if (intent.hasExtra("type"))
                 type = intent.getStringExtra("type")!!
         }
@@ -136,24 +151,53 @@ class BookSlotActivity : BaseActivity() {
                 updateWalletBalanceUI()
             }
         }
+
+        initCallService()
+        binding.zegoCallButton.setOnClickListener { v ->
+            //	If true, a video call is made when the button is pressed. Otherwise, a voice call is made.
+            binding.zegoCallButton.setIsVideoCall(false);
+            //resourceID can be used to specify the ringtone of an offline call invitation, which must be set to the same value as the Push Resource ID in ZEGOCLOUD Admin Console. This only takes effect when the notifyWhenAppRunningInBackgroundOrQuit is true.
+            binding.zegoCallButton.setInvitees(
+                listOf(
+                    ZegoUIKitUser(
+                        astrologerPhoneNumber,
+                        astrologerName
+                    )
+                )
+            )
+        }
     }
 
     private fun showTypeUI(isBusy: Int) {
-        val gridLayoutManagerMinutes = GridLayoutManager(this, 3) // 3 columns
-        binding.rvType.layoutManager = gridLayoutManagerMinutes
-        val typeList = if (isBusy == 1)
-            listOf("Call")
-        else
-            listOf("Chat", "Call")
-        val adapter = TypeAdapter(typeList, object : TypeAdapter.OnTypeSelectedListener {
-            override fun onTypeSelected(type: String) {
-                this@BookSlotActivity.type = type.lowercase()
-                resetUI()
-                updateWalletBalanceUI()
+        if (isBusy == 0) {
+            // Fetch is_free_minutes
+            val configKeyCallEnabled = "is_call_enable"
+            val configDefaultValueCallEnabled = true
+            // Fetch the data using the specified key
+            RemoteConfigUtils.fetchData(
+                configKeyCallEnabled,
+                configDefaultValueCallEnabled
+            ) { enabled ->
+                // Use the fetched data string here
+                println("Remote Config Fetched Value: $enabled")
+                val gridLayoutManagerMinutes = GridLayoutManager(this, 3) // 3 columns
+                binding.rvType.layoutManager = gridLayoutManagerMinutes
+                val typeList: List<String>
+                if (enabled)
+                    typeList = listOf("Chat", "Call")
+                else
+                    typeList = listOf("Chat")
+                val adapter = TypeAdapter(typeList, object : TypeAdapter.OnTypeSelectedListener {
+                    override fun onTypeSelected(type: String) {
+                        this@BookSlotActivity.type = type.lowercase()
+                        resetUI()
+                        updateWalletBalanceUI()
+                    }
+                })
+                adapter.setSelectedType(type)
+                binding.rvType.adapter = adapter
             }
-        })
-        adapter.setSelectedType(type)
-        binding.rvType.adapter = adapter
+        }
     }
 
     private fun resetUI() {
@@ -170,38 +214,47 @@ class BookSlotActivity : BaseActivity() {
         val gridLayoutManagerMinutes = GridLayoutManager(this, 3) // 3 columns
         binding.rvMinutes.layoutManager = gridLayoutManagerMinutes
 
-        val minutesList: List<Int> = if (this@BookSlotActivity.isFreeUser)
-            listOf(3, 5, 10, 15, 20, 25, 30) // Add more minutes as needed
-        else
-            listOf(5, 10, 15, 20, 25, 30) // Add more minutes as needed
+        val minutesList: List<Int> =
+            listOf(1, 2, 3, 5, 10, 15, 20, 25, 30) // Add more minutes as needed
 
 
         val listener = object : MinutesAdapter.OnMinuteSelectedListener {
             override fun onMinuteSelected(minute: Int) {
-                this@BookSlotActivity.isFreeUser = minute == 3
                 selectedDuration = minute
                 if (type == "chat") {
                     binding.chatButton.visibility = View.VISIBLE
                     binding.callButton.visibility = View.GONE
-                    binding.timeSlotLayout.visibility = View.GONE
                 } else {
                     binding.chatButton.visibility = View.GONE
-                    if (isFreeUser) {
-                        binding.callButton.visibility = View.VISIBLE
-                        binding.timeSlotLayout.visibility = View.GONE
-                    } else {
-                        binding.callButton.visibility = View.GONE
-                        binding.timeSlotLayout.visibility = View.VISIBLE
-                        loadAvailableSlots()
-                    }
+                    binding.callButton.visibility = View.VISIBLE
+//                    if (isFreeUser) {
+//
+//                        binding.timeSlotLayout.visibility = View.GONE
+//                    } else {
+//                        binding.callButton.visibility = View.GONE
+//                        binding.timeSlotLayout.visibility = View.VISIBLE
+//                        loadAvailableSlots()
+//                    }
                 }
+                binding.timeSlotLayout.visibility = View.GONE
                 binding.rvTimeSlots.visibility = View.GONE
                 binding.tvSlotsTime.visibility = View.GONE
             }
         }
 
-        val adapter = MinutesAdapter(minutesList, listener)
-        binding.rvMinutes.adapter = adapter
+        // Fetch is_free_minutes
+        val configKey = "is_free_minutes"
+        val configDefaultValue = 3
+
+        var freeMinutesDuration: Int
+        // Fetch the data using the specified key
+        RemoteConfigUtils.fetchData(configKey, configDefaultValue) { data ->
+            // Use the fetched data string here
+            println("Remote Config Fetched Value: $data")
+            freeMinutesDuration = if (isFreeUser) data.toInt() else -1
+            val adapter = MinutesAdapter(freeMinutesDuration, minutesList, listener)
+            binding.rvMinutes.adapter = adapter
+        }
     }
 
     private fun fetchAstrologerStatus() {
@@ -329,7 +382,11 @@ class BookSlotActivity : BaseActivity() {
                                     binding.rvAvailableSlots.adapter = slotAdapter
                                     slotAdapter.updateSlots(response.allSlots)
                                 } else {
-                                    Toast.makeText(this@BookSlotActivity, "No Slots available", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        this@BookSlotActivity,
+                                        "No Slots available",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                     binding.tvAvailableSlots.visibility = View.GONE
                                     binding.rvAvailableSlots.visibility = View.GONE
                                 }
@@ -442,22 +499,12 @@ class BookSlotActivity : BaseActivity() {
             return
         }
 
-        if (this@BookSlotActivity.slotId.isEmpty() && !isFreeUser && type != "chat") {
-            return
-        }
-
         if (this@BookSlotActivity.selectedDuration < 0) {
             Toast.makeText(
                 this@BookSlotActivity,
                 "Please select the minutes",
                 Toast.LENGTH_SHORT
             ).show()
-            return
-        }
-
-        if (this@BookSlotActivity.selectedStartTime.isEmpty() && !isFreeUser && type != "chat") {
-            Toast.makeText(this@BookSlotActivity, "Please select a time", Toast.LENGTH_SHORT)
-                .show()
             return
         }
 
@@ -477,16 +524,11 @@ class BookSlotActivity : BaseActivity() {
                 "total_cost",
                 (this@BookSlotActivity.selectedDuration * this@BookSlotActivity.astrologerRate)
             )
-            if (type == "chat") {
-                jsonObjectBody.put("booked_start_time", Utils.getCurrentTime())
-            } else {
-                if (!isFreeUser) {
-                    jsonObjectBody.put("booked_start_time", this@BookSlotActivity.selectedStartTime)
-                    jsonObjectBody.put("slot_id", this@BookSlotActivity.slotId)
-                }
-            }
+            jsonObjectBody.put("booked_start_time", Utils.getCurrentTime())
             if (this@BookSlotActivity.isFreeUser)
                 jsonObjectBody.put("is_free", isFreeUser)
+
+            jsonObjectBody.put("app_version", BuildConfig.VERSION_CODE)
 
 
             OkHttpNetworkProvider.post(
@@ -500,14 +542,14 @@ class BookSlotActivity : BaseActivity() {
                     override fun onResponse(response: LoginResponseModel?) {
                         lifecycleScope.launch(Dispatchers.Main) {
                             Utils.hideProgress()
-                        }
-                        if (response != null) {
-                            Log.i(TAG, "onResponse: $response")
-                            lifecycleScope.launch(Dispatchers.Main) {
-                                if (type == "chat") {
-                                    getChatToken()
-                                } else
-                                    showDialog()
+                            if (response != null) {
+                                Log.i(TAG, "onResponse: $response")
+                                lifecycleScope.launch(Dispatchers.Main) {
+                                    if (type == "chat") {
+                                        getChatToken()
+                                    } else
+                                        binding.zegoCallButton.performClick()
+                                }
                             }
                         }
                     }
@@ -527,6 +569,54 @@ class BookSlotActivity : BaseActivity() {
                 })
         }
     }
+
+    private fun updateAstrologerBusyStatus() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val headers = mutableMapOf<String, String>()
+            headers["Content-Type"] = "application/x-www-form-urlencoded"
+            headers["Authorization"] =
+                Utils.encodeToBase64(KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!)
+
+            val jsonObjectBody = JSONObject()
+            jsonObjectBody.put("phone", astrologerPhoneNumber)
+            jsonObjectBody.put("is_busy", false)
+
+            OkHttpNetworkProvider.post(
+                BuildConfig.BASE_URL + "astrologers/profile/switch_is_busy_status",
+                jsonObjectBody,
+                headers,
+                null,
+                null,
+                AstrologerStatusResponseModel::class.java,
+                object : OkHttpNetworkProvider.NetworkListener<AstrologerStatusResponseModel> {
+                    override fun onResponse(response: AstrologerStatusResponseModel?) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                            if (response != null) {
+                                Log.i(TAG, "onResponse: $response")
+                                val intent = Intent(this@BookSlotActivity, HomeActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                        }
+                    }
+
+                    override fun onError(error: BaseErrorModel?) {
+                        Log.i(TAG, "onError: ")
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            Utils.hideProgress()
+                            Toast.makeText(
+                                this@BookSlotActivity,
+                                error?.message ?: "Something went wrong!",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                        }
+                    }
+                })
+        }
+    }
+
 
     private suspend fun getChatToken() {
         lifecycleScope.launch(Dispatchers.IO) {
@@ -712,7 +802,13 @@ class BookSlotActivity : BaseActivity() {
             // Define the formatter to format time as HH:mm
             val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             // Add each time interval as a time slot
-            timeSlots.add(TimeSlot(currentTime.format(timeFormatter), nextTime.format(timeFormatter), isBooked))
+            timeSlots.add(
+                TimeSlot(
+                    currentTime.format(timeFormatter),
+                    nextTime.format(timeFormatter),
+                    isBooked
+                )
+            )
 
             // Move to the next time slot
             currentTime = nextTime
@@ -743,6 +839,59 @@ class BookSlotActivity : BaseActivity() {
         }
         bottomSheet.show(supportFragmentManager, "AddMoneyBottomSheet")
 
+    }
+
+    private fun initCallService() {
+        val appID: Long = 1228953698
+        val appSign = "7ea03ecd328c2553d178db02938a96cb6c818843053f7ffe14f3698fea8fc48a"
+        val userID: String = KeyStorePref.getString(AppConstants.KEY_STORE_USER_ID)!!
+        val userName: String = KeyStorePref.getString(AppConstants.KEY_STORE_NAME)!!
+
+        // You can also use GroupVideo/GroupVoice/OneOnOneVoice to make more types of calls.
+        val callInvitationConfig = ZegoUIKitPrebuiltCallInvitationConfig()
+        callInvitationConfig.translationText = ZegoTranslationText(ZegoUIKitLanguage.ENGLISH)
+        customCallConfig(callInvitationConfig)
+
+
+        ZegoUIKitPrebuiltCallService.init(
+            application, appID, appSign, userID, userName,
+            callInvitationConfig
+        )
+
+        ZegoUIKitPrebuiltCallService.events.callEvents.callEndListener =
+            CallEndListener { callEndReason, jsonObject ->
+                updateAstrologerBusyStatus()
+            }
+    }
+
+
+    private fun customCallConfig(callInvitationConfig: ZegoUIKitPrebuiltCallInvitationConfig) {
+        callInvitationConfig.provider =
+            ZegoUIKitPrebuiltCallConfigProvider { invitationData ->
+                val config: ZegoUIKitPrebuiltCallConfig?
+                val isVideoCall = invitationData.type == ZegoInvitationType.VIDEO_CALL.value
+                val isGroupCall: Boolean = invitationData.invitees.size > 1
+                config = if (isVideoCall && isGroupCall) {
+                    ZegoUIKitPrebuiltCallConfig.groupVideoCall()
+                } else if (!isVideoCall && isGroupCall) {
+                    ZegoUIKitPrebuiltCallConfig.groupVoiceCall()
+                } else if (!isVideoCall) {
+                    ZegoUIKitPrebuiltCallConfig.oneOnOneVoiceCall()
+                } else {
+                    ZegoUIKitPrebuiltCallConfig.oneOnOneVideoCall()
+                }
+                config.durationConfig = ZegoCallDurationConfig()
+                config.durationConfig.isVisible = true
+                config.durationConfig.durationUpdateListener =
+                    DurationUpdateListener { seconds ->
+                        Log.d(TAG, "onDurationUpdate() called with: seconds = [$seconds]")
+                        if ((selectedDuration * 60).toLong() == seconds) {
+                            ZegoUIKitPrebuiltCallService.endCall()
+                        }
+                    }
+
+                config
+            }
     }
 
     companion object {

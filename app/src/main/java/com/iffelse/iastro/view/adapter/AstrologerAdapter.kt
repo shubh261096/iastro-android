@@ -61,15 +61,30 @@ class AstrologerAdapter(
             if (astrologer.isActive == "1") {
                 if (astrologer.isOnline != null && astrologer.isOnline == "1") {
                     if (astrologer.isBusy != null && astrologer.isBusy == "1") {
-                        binding.chatIcon.visibility = View.GONE
+                        binding.chatIcon.visibility = View.VISIBLE
+                        binding.chatIcon.isEnabled = false
+                        binding.chatIcon.setBackgroundResource(R.drawable.button_background_disable)
+                        binding.callIcon.visibility = View.VISIBLE
+                        binding.callIcon.isEnabled = false
+                        binding.callIcon.setBackgroundResource(R.drawable.button_background_disable)
                         binding.onlineStatus.setBackgroundResource(R.drawable.busy_dot)
                     } else {
                         binding.chatIcon.visibility = View.VISIBLE
+                        binding.chatIcon.isEnabled = true
+                        binding.chatIcon.setBackgroundResource(R.drawable.button_background)
+                        binding.callIcon.visibility = View.VISIBLE
+                        binding.callIcon.isEnabled = true
+                        binding.callIcon.setBackgroundResource(R.drawable.button_background)
                         binding.onlineStatus.setBackgroundResource(R.drawable.online_dot)
                     }
                     binding.onlineStatus.visibility = View.VISIBLE
                 } else {
                     binding.chatIcon.visibility = View.GONE
+                    binding.chatIcon.isEnabled = false
+                    binding.callIcon.visibility = View.VISIBLE
+                    binding.callIcon.isEnabled = false
+                    binding.callIcon.text = "Offline"
+                    binding.callIcon.setBackgroundResource(R.drawable.button_background_disable)
                     binding.onlineStatus.visibility = View.GONE
                 }
             } else {

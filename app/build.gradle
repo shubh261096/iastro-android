@@ -11,10 +11,10 @@ android {
 
     defaultConfig {
         applicationId "com.iffelse.iastro"
-        minSdk 24
+        minSdk 26
         targetSdk 34
-        versionCode 28
-        versionName "2.0.9"
+        versionCode 29
+        versionName "2.1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
@@ -121,4 +121,5 @@ dependencies {
 
     implementation 'com.razorpay:checkout:1.6.40'
     implementation 'com.sceyt:sceyt-chat-android-uikit:1.7.4'
+    implementation 'com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+'
 }

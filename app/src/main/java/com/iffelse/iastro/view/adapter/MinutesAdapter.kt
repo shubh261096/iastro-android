@@ -10,6 +10,7 @@ import com.iffelse.iastro.R
 
 
 class MinutesAdapter(
+    private val freeMinDuration : Int,
     private val minutesList: List<Int>,
     private val listener: OnMinuteSelectedListener
 ) : RecyclerView.Adapter<MinutesAdapter.MinuteViewHolder>() {
@@ -42,7 +43,7 @@ class MinutesAdapter(
         private val tvTimeSlot: TextView = itemView.findViewById(R.id.tvTimeSlot)
 
         fun bind(timeSlot: Int, isSelected: Boolean) {
-            if (timeSlot == 3) {
+            if (timeSlot == freeMinDuration) {
                 tvTimeSlot.text = "FREE"
             } else {
                 tvTimeSlot.text = "$timeSlot mins"

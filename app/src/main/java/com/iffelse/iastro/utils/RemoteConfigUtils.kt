@@ -41,4 +41,38 @@ object RemoteConfigUtils {
                 }
             }
     }
+
+    fun fetchData(key: String, defaultValue: Int, onComplete: (Long) -> Unit) {
+        // Set a default value for the key if needed
+        remoteConfig.setDefaultsAsync(mapOf(key to defaultValue))
+
+        remoteConfig.fetchAndActivate()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val dataString = remoteConfig.getLong(key)
+                    Log.d(TAG, "Fetched data for key '$key': $dataString")
+                    onComplete(dataString)
+                } else {
+                    Log.e(TAG, "Fetch failed for key '$key'")
+                    onComplete(remoteConfig.getLong(key))  // Return default value if fetch failed
+                }
+            }
+    }
+
+    fun fetchData(key: String, defaultValue: Boolean, onComplete: (Boolean) -> Unit) {
+        // Set a default value for the key if needed
+        remoteConfig.setDefaultsAsync(mapOf(key to defaultValue))
+
+        remoteConfig.fetchAndActivate()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val dataString = remoteConfig.getBoolean(key)
+                    Log.d(TAG, "Fetched data for key '$key': $dataString")
+                    onComplete(dataString)
+                } else {
+                    Log.e(TAG, "Fetch failed for key '$key'")
+                    onComplete(remoteConfig.getBoolean(key))  // Return default value if fetch failed
+                }
+            }
+    }
 }

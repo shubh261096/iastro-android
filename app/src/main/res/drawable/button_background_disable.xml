@@ -1,0 +1,14 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Solid background color for the button -->
+    <solid android:color="#80F48534" />
+
+    <!-- Rounded corners with a radius of 12dp -->
+    <corners android:radius="8dp" />
+
+    <!-- Optional: Add padding inside the button -->
+    <padding
+        android:left="16dp"
+        android:top="8dp"
+        android:right="16dp"
+        android:bottom="8dp" />
+</shape>
